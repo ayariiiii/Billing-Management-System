@@ -1,0 +1,2840 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StoreOps Pro - 5 DC Maintenance & Ticket Management System</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <style>
+    /* Base Typography & Fonts */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: #f8fafc;
+      color: #0f172a;
+    }
+
+    /* Print Optimizations for Official Work Order */
+    @media print {
+      body * {
+        visibility: hidden !important;
+      }
+
+      #printArea,
+      #printArea * {
+        visibility: visible !important;
+      }
+
+      #printArea {
+        position: absolute !important;
+        left: 0 !important;
+        top: 0 !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: #ffffff !important;
+        color: #000000 !important;
+        box-shadow: none !important;
+      }
+
+      .no-print {
+        display: none !important;
+      }
+    }
+
+    /* Custom Scrollbars */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+
+    /* Custom Badges */
+    .badge-critical {
+      background-color: #fef2f2;
+      color: #b91c1c;
+      border: 1px solid #fecaca;
+    }
+
+    .badge-high {
+      background-color: #fff7ed;
+      color: #c2410c;
+      border: 1px solid #fed7aa;
+    }
+
+    .badge-medium {
+      background-color: #fefce8;
+      color: #a16207;
+      border: 1px solid #fef08a;
+    }
+
+    .badge-low {
+      background-color: #f0fdf4;
+      color: #15803d;
+      border: 1px solid #bbf7d0;
+    }
+
+    .badge-pending {
+      background-color: #fffbeb;
+      color: #b45309;
+      border: 1px solid #fde68a;
+    }
+
+    .badge-inprogress {
+      background-color: #eff6ff;
+      color: #1d4ed8;
+      border: 1px solid #bfdbfe;
+    }
+
+    .badge-resolved {
+      background-color: #ecfdf5;
+      color: #047857;
+      border: 1px solid #a7f3d0;
+    }
+
+    .badge-closed {
+      background-color: #f8fafc;
+      color: #475569;
+      border: 1px solid #e2e8f0;
+    }
+
+    .badge-onhold {
+      background-color: #faf5ff;
+      color: #7e22ce;
+      border: 1px solid #e9d5ff;
+    }
+
+    /* Table Density Styles */
+    .table-compact th,
+    .table-compact td {
+      padding: 0.5rem 0.65rem !important;
+      font-size: 0.75rem !important;
+    }
+
+    .table-comfortable th,
+    .table-comfortable td {
+      padding: 0.85rem 0.95rem !important;
+      font-size: 0.785rem !important;
+    }
+
+    /* Sticky column dropshadows */
+    .sticky-col-right {
+      box-shadow: -4px 0 8px -3px rgba(0, 0, 0, 0.05);
+    }
+
+    .sticky-col-left {
+      box-shadow: 4px 0 8px -3px rgba(0, 0, 0, 0.05);
+    }
+  </style>
+</head>
+
+<body class="min-h-screen flex flex-col antialiased selection:bg-blue-600 selection:text-white">
+
+  <!-- TOP APP BAR -->
+  <header
+    class="bg-slate-900 text-white border-b border-slate-800/80 sticky top-0 z-40 shadow-sm backdrop-blur-md bg-slate-900/95">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+
+        <!-- Brand / Identity -->
+        <div class="flex items-center gap-3.5">
+          <div
+            class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-cyan-500 flex items-center justify-center shadow-lg shadow-blue-500/25 text-white font-extrabold text-lg tracking-wider border border-white/10">
+            DC
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-base sm:text-lg font-bold tracking-tight text-white">StoreOps Pro</span>
+              <span
+                class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-500/20 text-blue-300 border border-blue-400/30">
+                5 Distribution Centers
+              </span>
+            </div>
+            <p class="text-[11px] text-slate-400 font-medium hidden sm:block">Silang &bull; Calamba &bull; Sariaya
+              &bull; Marilao &bull; Mexico</p>
+          </div>
+        </div>
+
+        <!-- Global Header Actions -->
+        <div class="flex items-center gap-2 sm:gap-2.5">
+          <!-- Column Manager Trigger -->
+          <button onclick="openColumnModal()"
+            class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700/80 text-slate-200 border border-slate-700 transition active:scale-95"
+            title="Customize Columns (All 23 Fields)">
+            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
+            </svg>
+            <span class="hidden md:inline">Columns</span>
+          </button>
+
+          <!-- Export CSV -->
+          <button onclick="exportToCsv()"
+            class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700/80 text-slate-200 border border-slate-700 transition active:scale-95"
+            title="Export 23 Columns to CSV">
+            <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <span class="hidden sm:inline">Export</span>
+          </button>
+
+          <!-- Import CSV -->
+          <label
+            class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700/80 text-slate-200 border border-slate-700 transition cursor-pointer active:scale-95"
+            title="Import Tickets CSV">
+            <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+            </svg>
+            <span class="hidden sm:inline">Import</span>
+            <input type="file" id="csvFileInput" accept=".csv" class="hidden" onchange="importCsv(event)">
+          </label>
+
+          <!-- DC Configuration Settings Modal -->
+          <button onclick="openStoreSettingsModal()"
+            class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700/80 text-slate-300 border border-slate-700 transition active:scale-95"
+            title="Configure Distribution Centers">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+          </button>
+
+          <!-- Primary CTA: Create Ticket -->
+          <button onclick="openNewTicketModal()"
+            class="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-md shadow-blue-600/30 transition active:scale-95">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
+            </svg>
+            <span>New Ticket</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- STORE TABS NAVIGATION (5 Dedicated DC Pages + Master All DCs) -->
+  <nav class="bg-white border-b border-slate-200/90 sticky top-16 z-30 shadow-xs">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between py-2.5 gap-2 overflow-x-auto scrollbar-none"
+        id="storeTabsContainer">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN DASHBOARD CONTENT -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 w-full space-y-5">
+
+    <!-- STORE PROFILE BANNER & EXECUTIVE KPI SUMMARY -->
+    <section class="bg-white rounded-2xl border border-slate-200 shadow-xs p-5 space-y-5">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+        <div>
+          <div class="flex items-center gap-2.5">
+            <span id="activeStoreBadge"
+              class="px-2.5 py-1 text-xs font-bold rounded-lg bg-blue-50 text-blue-700 border border-blue-200 font-mono tracking-wide shadow-xs">
+              DC-SLG
+            </span>
+            <h2 id="activeStoreTitle" class="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
+              DC Silang
+            </h2>
+          </div>
+          <div class="flex flex-wrap items-center gap-2 text-xs text-slate-500 mt-1.5 font-medium">
+            <span class="inline-flex items-center gap-1">
+              <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              Branch: <strong id="activeStoreBranch" class="text-slate-700 font-semibold">Silang, Cavite</strong>
+            </span>
+            <span class="text-slate-300">•</span>
+            <span id="activeStoreTicketCountText" class="text-slate-500">Dedicated distribution center dashboard</span>
+          </div>
+        </div>
+
+        <!-- KPI Summary Cards (4 Pillars) -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-3.5 w-full md:w-auto">
+          <!-- Total Tickets -->
+          <div
+            class="bg-slate-50/80 border border-slate-200/90 rounded-xl px-4 py-3 min-w-[130px] flex flex-col justify-between hover:border-slate-300 transition">
+            <div
+              class="text-[11px] font-bold text-slate-500 uppercase tracking-wider flex items-center justify-between">
+              <span>Total Tickets</span>
+              <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+              </svg>
+            </div>
+            <div id="kpiTotalTickets" class="text-xl font-extrabold text-slate-900 mt-1">0</div>
+          </div>
+
+          <!-- Pending / In Progress -->
+          <div
+            class="bg-amber-50/60 border border-amber-200/90 rounded-xl px-4 py-3 min-w-[130px] flex flex-col justify-between hover:border-amber-300 transition">
+            <div
+              class="text-[11px] font-bold text-amber-700 uppercase tracking-wider flex items-center justify-between">
+              <span>Open & Pending</span>
+              <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+            </div>
+            <div id="kpiPendingTickets" class="text-xl font-extrabold text-amber-800 mt-1">0</div>
+          </div>
+
+          <!-- Critical Incidents -->
+          <div
+            class="bg-rose-50/60 border border-rose-200/90 rounded-xl px-4 py-3 min-w-[130px] flex flex-col justify-between hover:border-rose-300 transition">
+            <div class="text-[11px] font-bold text-rose-700 uppercase tracking-wider flex items-center justify-between">
+              <span>Critical Level</span>
+              <svg class="w-3.5 h-3.5 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+            </div>
+            <div id="kpiCriticalTickets" class="text-xl font-extrabold text-rose-800 mt-1">0</div>
+          </div>
+
+          <!-- Total Expenditure (₱) -->
+          <div
+            class="bg-emerald-50/70 border border-emerald-200/90 rounded-xl px-4 py-3 min-w-[150px] flex flex-col justify-between hover:border-emerald-300 transition">
+            <div
+              class="text-[11px] font-bold text-emerald-700 uppercase tracking-wider flex items-center justify-between">
+              <span>Total Amount</span>
+              <span class="text-xs font-bold text-emerald-600 font-mono">PHP</span>
+            </div>
+            <div id="kpiTotalAmount" class="text-xl font-extrabold text-emerald-900 mt-1 font-mono">₱0.00</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Financial Breakdown Sub-Bar -->
+      <div
+        class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs bg-slate-50/90 p-3.5 rounded-xl border border-slate-200/80">
+        <div
+          class="flex items-center justify-between px-2.5 py-1 bg-white rounded-lg border border-slate-200/60 shadow-2xs">
+          <span class="text-slate-500 font-medium">Total Mobilization Fee:</span>
+          <span id="kpiMobilization" class="font-bold font-mono text-slate-800">₱0.00</span>
+        </div>
+        <div
+          class="flex items-center justify-between px-2.5 py-1 bg-white rounded-lg border border-slate-200/60 shadow-2xs">
+          <span class="text-slate-500 font-medium">Total Service Charges:</span>
+          <span id="kpiServiceCharge" class="font-bold font-mono text-slate-800">₱0.00</span>
+        </div>
+        <div
+          class="flex items-center justify-between px-2.5 py-1 bg-white rounded-lg border border-slate-200/60 shadow-2xs">
+          <span class="text-slate-500 font-medium">Total Parts / Hardware:</span>
+          <span id="kpiAmount" class="font-bold font-mono text-slate-800">₱0.00</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTROL HUB: Search, Presets, Multi-Filter & Views -->
+    <section class="bg-white rounded-2xl border border-slate-200 p-4 shadow-xs space-y-3.5">
+
+      <!-- Top Row: Search & Filters -->
+      <div class="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3">
+
+        <!-- Live Search Box with clear button -->
+        <div class="relative flex-1 min-w-[280px]">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
+          <input type="text" id="searchInput" oninput="handleSearchInput()"
+            placeholder="Search PO, Ticket #, SI, Vendor, Issue, Remarks... (Press / to focus)"
+            class="w-full pl-9 pr-8 py-2 text-xs bg-slate-50 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition text-slate-800 placeholder-slate-400">
+
+          <button id="searchClearBtn" onclick="clearSearchInput()"
+            class="hidden absolute inset-y-0 right-0 pr-2.5 flex items-center text-slate-400 hover:text-slate-700">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Filter Select Dropdowns -->
+        <div class="flex flex-wrap items-center gap-2">
+          <!-- Month Filter -->
+          <select id="filterMonth" onchange="applyFiltersAndRender()"
+            class="text-xs bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-2 text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 hover:border-slate-400 transition">
+            <option value="">All Months</option>
+            <option value="January">January</option>
+            <option value="February">February</option>
+            <option value="March">March</option>
+            <option value="April">April</option>
+            <option value="May">May</option>
+            <option value="June">June</option>
+            <option value="July">July</option>
+            <option value="August">August</option>
+            <option value="September">September</option>
+            <option value="October">October</option>
+            <option value="November">November</option>
+            <option value="December">December</option>
+          </select>
+
+          <!-- Status Filter -->
+          <select id="filterStatus" onchange="applyFiltersAndRender()"
+            class="text-xs bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-2 text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 hover:border-slate-400 transition">
+            <option value="">All Statuses</option>
+            <option value="Pending">Pending</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Resolved">Resolved</option>
+            <option value="Closed">Closed</option>
+            <option value="On Hold">On Hold</option>
+          </select>
+
+          <!-- Priority Filter -->
+          <select id="filterLevel" onchange="applyFiltersAndRender()"
+            class="text-xs bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-2 text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 hover:border-slate-400 transition">
+            <option value="">All Priorities</option>
+            <option value="Critical">Critical</option>
+            <option value="High">High</option>
+            <option value="Medium">Medium</option>
+            <option value="Low">Low</option>
+          </select>
+
+          <!-- Category Filter -->
+          <select id="filterCategory" onchange="applyFiltersAndRender()"
+            class="text-xs bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-2 text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 hover:border-slate-400 transition">
+            <option value="">All Categories</option>
+            <option value="POS / Hardware">POS / Hardware</option>
+            <option value="HVAC / Cooling">HVAC / Cooling</option>
+            <option value="Electrical">Electrical</option>
+            <option value="Network / IT">Network / IT</option>
+            <option value="Plumbing / Facility">Plumbing / Facility</option>
+            <option value="Security / CCTV">Security / CCTV</option>
+          </select>
+
+          <!-- Table Density Toggle -->
+          <button id="densityBtn" onclick="toggleTableDensity()"
+            class="px-2.5 py-2 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-slate-200/80 text-slate-700 border border-slate-200 transition"
+            title="Toggle Row Spacing (Compact vs Comfortable)">
+            <span id="densityLabel">Compact</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick Filter Pills & Active Filter Tags -->
+      <div class="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-100 text-xs">
+        <!-- Quick Presets -->
+        <div class="flex flex-wrap items-center gap-1.5">
+          <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mr-1">Quick:</span>
+          <button onclick="setQuickPreset('all')" id="presetBtn_all"
+            class="px-2.5 py-1 rounded-md font-semibold text-blue-700 bg-blue-50 border border-blue-200 transition">All</button>
+          <button onclick="setQuickPreset('attention')" id="presetBtn_attention"
+            class="px-2.5 py-1 rounded-md font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 transition">Needs
+            Attention</button>
+          <button onclick="setQuickPreset('critical')" id="presetBtn_critical"
+            class="px-2.5 py-1 rounded-md font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 transition">Critical
+            Only</button>
+          <button onclick="setQuickPreset('resolved')" id="presetBtn_resolved"
+            class="px-2.5 py-1 rounded-md font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 transition">Resolved
+            / Closed</button>
+        </div>
+
+        <!-- Active Filter Chips Container -->
+        <div class="flex flex-wrap items-center gap-1.5" id="activeFilterChips">
+          <!-- Populated when filters are active -->
+        </div>
+      </div>
+
+      <!-- Batch Operations Floating Bar (Appears when rows selected) -->
+      <div id="batchActionBar"
+        class="hidden bg-gradient-to-r from-blue-900 to-indigo-950 text-white rounded-xl px-4 py-2.5 flex items-center justify-between text-xs shadow-lg transition animate-in fade-in">
+        <div class="flex items-center gap-2.5">
+          <span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
+          <span class="font-bold text-blue-100" id="selectedCountText">0 tickets selected</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="batchSetStatus('In Progress')"
+            class="px-2.5 py-1 bg-blue-700 hover:bg-blue-600 text-white rounded-md font-semibold transition">Mark In
+            Progress</button>
+          <button onclick="batchSetStatus('Resolved')"
+            class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded-md font-semibold transition">Mark
+            Resolved</button>
+          <button onclick="batchSetStatus('Closed')"
+            class="px-2.5 py-1 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-md font-semibold transition">Mark
+            Closed</button>
+          <button onclick="batchDelete()"
+            class="px-2.5 py-1 bg-rose-600 hover:bg-rose-500 text-white rounded-md font-semibold transition">Delete
+            Selected</button>
+          <button onclick="clearSelection()" class="px-2 py-1 text-slate-400 hover:text-white transition">Clear</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- DATA TABLE SECTION -->
+    <section class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden flex flex-col">
+      <div class="overflow-x-auto flex-1 max-h-[640px] relative">
+        <table class="w-full text-left border-collapse min-w-[1780px] table-comfortable" id="managementTable">
+          <thead
+            class="bg-slate-100 text-slate-700 sticky top-0 z-20 font-bold border-b border-slate-200/90 shadow-2xs backdrop-blur-md">
+            <tr id="tableHeaderRow">
+              <!-- Checkbox Master Column (Sticky Left) -->
+              <th class="p-3 w-10 text-center sticky left-0 bg-slate-100 z-30 sticky-col-left">
+                <input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll(this)"
+                  class="rounded text-blue-600 focus:ring-blue-500 cursor-pointer">
+              </th>
+
+              <!-- 23 Columns in exact requested order -->
+              <th data-col="status" onclick="sortBy('status')"
+                class="cursor-pointer hover:bg-slate-200/80 transition select-none">STATUS <span
+                  class="sort-icon text-blue-600 font-bold"></span></th>
+              <th data-col="po" onclick="sortBy('po')"
+                class="cursor-pointer hover:bg-slate-200/80 transition select-none">PO <span
+                  class="sort-icon text-blue-600 font-bold"></span></th>
+              <th data-col="ticketNumber" onclick="sortBy('ticketNumber')"
+                class="cursor-pointer hover:bg-slate-200/80 transition select-none">Ticket number <span
+                  class="sort-icon text-blue-600 font-bold"></span></th>
+              <th data-col="siNumber" onclick="sortBy('siNumber')"
+                class="cursor-pointer hover:bg-slate-200/80 transition select-none">SI. Number <span
+                  class="sort-icon text-blue-600 font-bold"></span></th>
+              <th data-col="vendor" onclick="sortBy('vendor')"
+                class="cursor-pointer hover:bg-slate-200/80 transition select-none">VENDOR <span
+                  class="sort-icon text-blue-600 font-bold"></span></th>
+              <th data-col="storeCode" onclick="sortBy('storeCode')"
+                class="cursor-pointer hover:bg-slate-200/80 transition select-none">STORE CODE <span
+                  class="sort-icon text-blue-600 font-bold"></span></th>
+              <th data-col="storeName" onclick="sortBy('storeName')"
+                class="cursor-pointer hover:bg-slate-200/80 transition select-none">STORE NAME <span
+                  class="sort-icon text-blue-600 font-bold"></span></th>
+              <th data-col="branch" onclick="sortBy('branch')"
+                class="cursor-pointer hover:bg-slate-200/80 transition select-none">BRANCH <span
+                  class="sort-icon text-blue-600 font-bold"></span></th>
+              <th data-col="dateIssued" onclick="sortBy('dateIssued')"
+                class="cursor-pointer hover:bg-slate-200/80 transition select-none">DATE ISSUED <span
+                  class="sort-icon text-blue-600 font-bold"></span></th>
+              <th data-col="issue" onclick="sortBy('issue')"
+                class="cursor-pointer hover:bg-slate-200/80 transition select-none">ISSUE <span
+                  class="sort-icon text-blue-600 font-bold"></span></th>
+              <th data-col="actionTaken" onclick="sortBy('actionTaken')"
+                class="cursor-pointer hover:bg-slate-200/80 transition select-none">ACTION TAKEN <span
+                  class="sort-icon text-blue-600 font-bold"></span></th>
+              <th data-col="mobilization" onclick="sortBy('mobilization')"
+                class="cursor-pointer hover:bg-slate-200/80 transition select-none text-right">MOBILIZATION (₱) <span
+                  class="sort-icon text-blue-600 font-bold"></span></th>
+              <th data-col="serviceCharge" onclick="sortBy('serviceCharge')"
+                class="cursor-pointer hover:bg-slate-200/80 transition select-none text-right">SERVICE CHARGE (₱) <span
+                  class="sort-icon text-blue-600 font-bold"></span></th>
+              <th data-col="amount" onclick="sortBy('amount')"
+                class="cursor-pointer hover:bg-slate-200/80 transition select-none text-right">AMOUNT (₱) <span
+                  class="sort-icon text-blue-600 font-bold"></span></th>
+              <th data-col="totalAmount" onclick="sortBy('totalAmount')"
+                class="cursor-pointer hover:bg-blue-100 transition select-none text-right bg-blue-50/80 text-blue-900">
+                TOTAL AMOUNT (₱) <span class="sort-icon text-blue-600 font-bold"></span></th>
+              <th data-col="description" class="select-none">DESCRIPTION</th>
+              <th data-col="installedDate" onclick="sortBy('installedDate')"
+                class="cursor-pointer hover:bg-slate-200/80 transition select-none">INSTALLED DATE <span
+                  class="sort-icon text-blue-600 font-bold"></span></th>
+              <th data-col="warranty" onclick="sortBy('warranty')"
+                class="cursor-pointer hover:bg-slate-200/80 transition select-none">WARRANTY <span
+                  class="sort-icon text-blue-600 font-bold"></span></th>
+              <th data-col="remarks" class="select-none">REMARKS</th>
+              <th data-col="dateReceived" onclick="sortBy('dateReceived')"
+                class="cursor-pointer hover:bg-slate-200/80 transition select-none">DATE RECEIVED <span
+                  class="sort-icon text-blue-600 font-bold"></span></th>
+              <th data-col="levelOfIssue" onclick="sortBy('levelOfIssue')"
+                class="cursor-pointer hover:bg-slate-200/80 transition select-none">LEVEL OF ISSUE <span
+                  class="sort-icon text-blue-600 font-bold"></span></th>
+              <th data-col="categoryIssue" onclick="sortBy('categoryIssue')"
+                class="cursor-pointer hover:bg-slate-200/80 transition select-none">CATEGORY ISSUE <span
+                  class="sort-icon text-blue-600 font-bold"></span></th>
+              <th data-col="month" onclick="sortBy('month')"
+                class="cursor-pointer hover:bg-slate-200/80 transition select-none">MONTH <span
+                  class="sort-icon text-blue-600 font-bold"></span></th>
+
+              <!-- Sticky Actions Column (Sticky Right) -->
+              <th class="p-3 sticky right-0 bg-slate-100 z-30 text-center sticky-col-right min-w-[125px]">
+                ACTIONS
+              </th>
+            </tr>
+          </thead>
+          <tbody id="tableBody" class="divide-y divide-slate-200/80 bg-white">
+            <!-- Table rows rendered dynamically -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- TABLE FOOTER & PAGINATION BAR -->
+      <div
+        class="p-4 border-t border-slate-200 bg-slate-50 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-600">
+
+        <!-- Record Counters & Page Size -->
+        <div class="flex items-center gap-3">
+          <div>
+            Showing <span id="showingStartCount" class="font-bold text-slate-900">0</span> to <span id="showingEndCount"
+              class="font-bold text-slate-900">0</span> of <span id="filteredTotalCount"
+              class="font-bold text-slate-900">0</span> tickets
+            <span id="allTicketsIndicator" class="text-slate-400 ml-1"></span>
+          </div>
+
+          <div class="flex items-center gap-1.5 ml-2">
+            <span class="text-slate-500">Per page:</span>
+            <select id="pageSizeSelect" onchange="changePageSize(this.value)"
+              class="bg-white border border-slate-300 rounded-md px-2 py-1 text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-blue-500">
+              <option value="10">10</option>
+              <option value="25" selected>25</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+              <option value="all">All</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Pagination Controls -->
+        <div class="flex items-center gap-1.5" id="paginationControls">
+          <!-- Rendered dynamically -->
+        </div>
+
+        <!-- Sample Records & Clear Data Safeguards -->
+        <div class="flex items-center gap-2">
+          <button onclick="restoreSampleData()"
+            class="px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-100 text-slate-700 font-semibold transition active:scale-95"
+            title="Reload rich realistic sample dataset">
+            Reload Sample Data
+          </button>
+          <button onclick="clearAllData()"
+            class="px-2.5 py-1.5 rounded-lg border border-rose-200 bg-white hover:bg-rose-50 text-rose-600 font-semibold transition active:scale-95"
+            title="Clear all tickets">
+            Clear All
+          </button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ======================================================== -->
+  <!-- MODAL: ADD / EDIT TICKET (TICKET FREELY EDITABLE & PO/SI OPTIONAL) -->
+  <!-- ======================================================== -->
+  <div id="ticketModal"
+    class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4">
+    <div
+      class="bg-white rounded-2xl max-w-4xl w-full p-6 shadow-2xl border border-slate-200 flex flex-col max-h-[calc(100vh-1.5rem)] sm:max-h-[calc(100vh-2rem)] transition-all animate-in fade-in zoom-in-95">
+
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between pb-4 border-b border-slate-200 shrink-0">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center font-bold">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            </svg>
+          </div>
+          <div>
+            <h3 id="modalTitle" class="text-lg font-bold text-slate-900">Create New Maintenance Ticket</h3>
+            <p class="text-xs text-slate-500">Edit any ticket parameter. PO and SI are optional.</p>
+          </div>
+        </div>
+        <button onclick="closeTicketModal()"
+          class="text-slate-400 hover:text-slate-700 p-1.5 rounded-lg hover:bg-slate-100 transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <form id="ticketForm" onsubmit="saveTicket(event)" class="mt-4 flex flex-col flex-1 min-h-0">
+        <input type="hidden" id="editTicketId" value="">
+        <div class="flex-1 min-h-0 overflow-y-auto space-y-5 pr-1">
+
+          <!-- CARD 1: DC & Tracking Identifiers -->
+          <div class="bg-slate-50/70 p-4 rounded-xl border border-slate-200 space-y-3">
+            <div class="flex items-center gap-2">
+              <span
+                class="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-[10px] font-bold">1</span>
+              <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Distribution Center & Identification
+              </h4>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+              <div>
+                <label class="block font-semibold text-slate-700 mb-1">STORE CODE *</label>
+                <select id="modalStoreCode" onchange="syncStoreInfoFromModal()" required
+                  class="w-full bg-white border border-slate-300 rounded-lg p-2 font-mono font-bold text-blue-700 focus:ring-2 focus:ring-blue-500">
+                  <!-- Dynamically populated with 5 DCs -->
+                </select>
+              </div>
+              <div>
+                <label class="block font-semibold text-slate-700 mb-1">STORE NAME *</label>
+                <input type="text" id="modalStoreName" required readonly
+                  class="w-full bg-slate-100 border border-slate-300 rounded-lg p-2 text-slate-600 font-semibold">
+              </div>
+              <div>
+                <label class="block font-semibold text-slate-700 mb-1">BRANCH *</label>
+                <input type="text" id="modalBranch" required
+                  class="w-full bg-white border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 font-medium">
+              </div>
+              <div>
+                <label class="block font-semibold text-slate-700 mb-1">REPORTING MONTH *</label>
+                <select id="modalMonth" required
+                  class="w-full bg-white border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 font-medium">
+                  <option value="January">January</option>
+                  <option value="February">February</option>
+                  <option value="March">March</option>
+                  <option value="April">April</option>
+                  <option value="May">May</option>
+                  <option value="June">June</option>
+                  <option value="July">July</option>
+                  <option value="August">August</option>
+                  <option value="September">September</option>
+                  <option value="October">October</option>
+                  <option value="November">November</option>
+                  <option value="December">December</option>
+                </select>
+              </div>
+
+              <!-- TICKET NUMBER: FULLY EDITABLE -->
+              <div>
+                <label class="block font-semibold text-slate-700 mb-1">
+                  Ticket number *
+                </label>
+                <input type="text" id="modalTicketNumber" required placeholder="e.g. TKT-1001"
+                  class="w-full bg-white border border-slate-300 rounded-lg p-2 font-mono font-bold text-blue-700 focus:ring-2 focus:ring-blue-500">
+              </div>
+
+              <!-- PO: PURELY OPTIONAL -->
+              <div>
+                <label class="block font-semibold text-slate-700 mb-1">
+                  PO (Purchase Order) <span class="text-slate-400 font-normal text-[11px]">(Optional)</span>
+                </label>
+                <input type="text" id="modalPo" placeholder="Optional (e.g. PO-2024-001)"
+                  class="w-full bg-white border border-slate-300 rounded-lg p-2 font-mono focus:ring-2 focus:ring-blue-500">
+              </div>
+
+              <!-- SI: PURELY OPTIONAL -->
+              <div>
+                <label class="block font-semibold text-slate-700 mb-1">
+                  SI. Number (Invoice) <span class="text-slate-400 font-normal text-[11px]">(Optional)</span>
+                </label>
+                <input type="text" id="modalSiNumber" placeholder="Optional (e.g. SI-90112)"
+                  class="w-full bg-white border border-slate-300 rounded-lg p-2 font-mono focus:ring-2 focus:ring-blue-500">
+              </div>
+
+              <!-- VENDOR -->
+              <div>
+                <label class="block font-semibold text-slate-700 mb-1">VENDOR (Contractor) *</label>
+                <input type="text" id="modalVendor" required placeholder="Vendor Co."
+                  class="w-full bg-white border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 font-medium">
+              </div>
+            </div>
+          </div>
+
+          <!-- CARD 2: Status, Priority & Dates -->
+          <div class="bg-slate-50/70 p-4 rounded-xl border border-slate-200 space-y-3">
+            <div class="flex items-center gap-2">
+              <span
+                class="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-[10px] font-bold">2</span>
+              <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Classification, Priority & Dates
+              </h4>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 text-xs">
+              <div>
+                <label class="block font-semibold text-slate-700 mb-1">STATUS *</label>
+                <select id="modalStatus" required
+                  class="w-full bg-white border border-slate-300 rounded-lg p-2 font-semibold focus:ring-2 focus:ring-blue-500">
+                  <option value="Pending">Pending</option>
+                  <option value="In Progress">In Progress</option>
+                  <option value="Resolved">Resolved</option>
+                  <option value="Closed">Closed</option>
+                  <option value="On Hold">On Hold</option>
+                </select>
+              </div>
+              <div>
+                <label class="block font-semibold text-slate-700 mb-1">LEVEL OF ISSUE *</label>
+                <select id="modalLevelOfIssue" required
+                  class="w-full bg-white border border-slate-300 rounded-lg p-2 font-bold focus:ring-2 focus:ring-blue-500">
+                  <option value="Critical">Critical (Immediate Outage)</option>
+                  <option value="High">High (Major Impairment)</option>
+                  <option value="Medium">Medium (Partial Degrade)</option>
+                  <option value="Low">Low (Minor / Cosmetic)</option>
+                </select>
+              </div>
+              <div>
+                <label class="block font-semibold text-slate-700 mb-1">CATEGORY ISSUE *</label>
+                <select id="modalCategoryIssue" required
+                  class="w-full bg-white border border-slate-300 rounded-lg p-2 font-medium focus:ring-2 focus:ring-blue-500">
+                  <option value="POS / Hardware">POS / Hardware</option>
+                  <option value="HVAC / Cooling">HVAC / Cooling</option>
+                  <option value="Electrical">Electrical</option>
+                  <option value="Network / IT">Network / IT</option>
+                  <option value="Plumbing / Facility">Plumbing / Facility</option>
+                  <option value="Security / CCTV">Security / CCTV</option>
+                </select>
+              </div>
+              <div>
+                <label class="block font-semibold text-slate-700 mb-1">DATE ISSUED *</label>
+                <input type="date" id="modalDateIssued" required
+                  class="w-full bg-white border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500">
+              </div>
+              <div>
+                <label class="block font-semibold text-slate-700 mb-1">DATE RECEIVED</label>
+                <input type="date" id="modalDateReceived"
+                  class="w-full bg-white border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500">
+              </div>
+              <div>
+                <label class="block font-semibold text-slate-700 mb-1">INSTALLED DATE</label>
+                <input type="date" id="modalInstalledDate"
+                  class="w-full bg-white border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500">
+              </div>
+            </div>
+          </div>
+
+          <!-- CARD 3: FINANCIALS & REAL-TIME AUTO-CALCULATION EQUATION -->
+          <div
+            class="bg-gradient-to-br from-blue-50/70 via-indigo-50/50 to-slate-50 p-4 rounded-xl border border-blue-200/80 space-y-3">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 pb-1">
+              <div class="flex items-center gap-2">
+                <span
+                  class="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-[10px] font-bold">3</span>
+                <h4 class="text-xs font-bold text-blue-900 uppercase tracking-wider">Financial Breakdown
+                  (Auto-Calculated
+                  in ₱)</h4>
+              </div>
+              <div class="text-[11px] font-mono font-semibold text-blue-700 bg-blue-100/80 px-2 py-0.5 rounded-md">
+                TOTAL = MOBILIZATION + SERVICE CHARGE + AMOUNT
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs">
+              <!-- Mobilization -->
+              <div>
+                <label class="block font-semibold text-slate-700 mb-1">MOBILIZATION (₱)</label>
+                <div class="relative">
+                  <span class="absolute inset-y-0 left-0 pl-2.5 flex items-center font-bold text-slate-400">₱</span>
+                  <input type="number" step="0.01" min="0" id="modalMobilization" oninput="calculateTotalAmount()"
+                    value="0.00"
+                    class="w-full pl-7 pr-2.5 py-2 bg-white border border-slate-300 rounded-lg font-mono font-medium focus:ring-2 focus:ring-blue-500">
+                </div>
+              </div>
+
+              <!-- Service Charge -->
+              <div>
+                <label class="block font-semibold text-slate-700 mb-1">SERVICE CHARGE (₱)</label>
+                <div class="relative">
+                  <span class="absolute inset-y-0 left-0 pl-2.5 flex items-center font-bold text-slate-400">₱</span>
+                  <input type="number" step="0.01" min="0" id="modalServiceCharge" oninput="calculateTotalAmount()"
+                    value="0.00"
+                    class="w-full pl-7 pr-2.5 py-2 bg-white border border-slate-300 rounded-lg font-mono font-medium focus:ring-2 focus:ring-blue-500">
+                </div>
+              </div>
+
+              <!-- Amount (Parts) -->
+              <div>
+                <label class="block font-semibold text-slate-700 mb-1">AMOUNT (₱ Parts/Goods)</label>
+                <div class="relative">
+                  <span class="absolute inset-y-0 left-0 pl-2.5 flex items-center font-bold text-slate-400">₱</span>
+                  <input type="number" step="0.01" min="0" id="modalAmount" oninput="calculateTotalAmount()"
+                    value="0.00"
+                    class="w-full pl-7 pr-2.5 py-2 bg-white border border-slate-300 rounded-lg font-mono font-medium focus:ring-2 focus:ring-blue-500">
+                </div>
+              </div>
+
+              <!-- Auto Total Computed -->
+              <div>
+                <label class="block font-bold text-blue-900 mb-1">TOTAL AMOUNT (₱ Computed)</label>
+                <div class="relative">
+                  <span class="absolute inset-y-0 left-0 pl-2.5 flex items-center font-bold text-blue-700">₱</span>
+                  <input type="number" step="0.01" id="modalTotalAmount" readonly
+                    class="w-full pl-7 pr-2.5 py-2 bg-blue-100/90 border border-blue-300 rounded-lg font-mono font-extrabold text-blue-950 focus:outline-none">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- CARD 4: Issue Context, Action Taken & Warranty -->
+          <div class="bg-slate-50/70 p-4 rounded-xl border border-slate-200 space-y-3">
+            <div class="flex items-center gap-2">
+              <span
+                class="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-[10px] font-bold">4</span>
+              <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Issue Description, Action Taken &
+                Warranty</h4>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+              <div class="sm:col-span-2">
+                <label class="block font-semibold text-slate-700 mb-1">ISSUE (Summary Title) *</label>
+                <input type="text" id="modalIssue" required placeholder="e.g. Loading dock hydraulic leveler stuck"
+                  class="w-full bg-white border border-slate-300 rounded-lg p-2 font-medium focus:ring-2 focus:ring-blue-500">
+              </div>
+              <div>
+                <label class="block font-semibold text-slate-700 mb-1">WARRANTY STATUS</label>
+                <select id="modalWarranty"
+                  class="w-full bg-white border border-slate-300 rounded-lg p-2 font-medium focus:ring-2 focus:ring-blue-500">
+                  <option value="Active (Under Warranty)">Active (Under Warranty)</option>
+                  <option value="Expired">Expired</option>
+                  <option value="Extended Coverage">Extended Coverage</option>
+                  <option value="Not Covered / Void">Not Covered / Void</option>
+                </select>
+              </div>
+              <div>
+                <label class="block font-semibold text-slate-700 mb-1">ACTION TAKEN</label>
+                <input type="text" id="modalActionTaken"
+                  placeholder="Technician repair steps, part replacement, testing..."
+                  class="w-full bg-white border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500">
+              </div>
+              <div>
+                <label class="block font-semibold text-slate-700 mb-1">DESCRIPTION</label>
+                <textarea id="modalDescription" rows="2" placeholder="Full context, symptoms, affected dock/zone..."
+                  class="w-full bg-white border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500"></textarea>
+              </div>
+              <div>
+                <label class="block font-semibold text-slate-700 mb-1">REMARKS</label>
+                <textarea id="modalRemarks" rows="2" placeholder="Next scheduled visit, DC supervisor notes..."
+                  class="w-full bg-white border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500"></textarea>
+              </div>
+            </div>
+          </div>
+        </div><!-- /scroll area -->
+
+        <!-- Form Modal Actions -->
+        <div class="flex items-center justify-end gap-3 pt-3 mt-4 border-t border-slate-200 shrink-0">
+          <button type="button" onclick="closeTicketModal()"
+            class="px-4 py-2 text-xs font-semibold rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 transition active:scale-95">
+            Cancel
+          </button>
+          <button type="submit"
+            class="px-5 py-2 text-xs font-bold rounded-lg bg-blue-600 hover:bg-blue-500 text-white shadow-md shadow-blue-600/30 transition active:scale-95">
+            Save Ticket Record
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL: OFFICIAL PRINTABLE WORK ORDER SHEET & DETAIL VIEW -->
+  <!-- ======================================================== -->
+  <div id="viewDetailModal"
+    class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+    <div
+      class="bg-white rounded-2xl max-w-3xl w-full p-6 shadow-2xl border border-slate-200 my-8 animate-in fade-in zoom-in-95">
+
+      <!-- Modal Toolbar (Hidden during print) -->
+      <div class="flex items-center justify-between pb-4 border-b border-slate-200 no-print">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-slate-900 text-white flex items-center justify-center font-bold text-xs">
+            WO
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-slate-900">Distribution Center Work Order Sheet</h3>
+            <p class="text-xs text-slate-500">Official printable maintenance record & financial statement</p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <!-- Edit This Ticket directly from detail view -->
+          <button onclick="editCurrentDetailTicket()"
+            class="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 text-white rounded-lg text-xs font-bold hover:bg-blue-500 transition active:scale-95"
+            title="Edit this ticket now">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            </svg>
+            Edit Ticket
+          </button>
+
+          <!-- Print button -->
+          <button onclick="window.print()"
+            class="flex items-center gap-1.5 px-3 py-1.5 bg-slate-900 text-white rounded-lg text-xs font-bold hover:bg-slate-800 transition active:scale-95">
+            <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+            </svg>
+            Print Sheet
+          </button>
+
+          <!-- Close button -->
+          <button onclick="closeDetailModal()"
+            class="text-slate-400 hover:text-slate-700 p-1.5 rounded-lg hover:bg-slate-100 transition">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Printable Document Container -->
+      <div id="printArea" class="mt-4 text-xs">
+        <div id="detailContentContainer">
+          <!-- Filled dynamically by JavaScript -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL: COLUMN VISIBILITY MANAGER (ALL 23 FIELDS)         -->
+  <!-- ======================================================== -->
+  <div id="columnModal"
+    class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+    <div
+      class="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl border border-slate-200 animate-in fade-in zoom-in-95">
+      <div class="flex items-center justify-between pb-4 border-b border-slate-200">
+        <div>
+          <h3 class="text-base font-bold text-slate-900">Configure Column Visibility</h3>
+          <p class="text-xs text-slate-500">Toggle any of the 23 required management tracking fields</p>
+        </div>
+        <button onclick="closeColumnModal()"
+          class="text-slate-400 hover:text-slate-700 p-1.5 rounded-lg hover:bg-slate-100 transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="mt-4 space-y-4">
+        <!-- Preset Shortcuts -->
+        <div class="flex flex-wrap items-center gap-2 p-2.5 bg-slate-50 rounded-xl border border-slate-200 text-xs">
+          <span class="font-bold text-slate-500 text-[11px] uppercase mr-1">Presets:</span>
+          <button onclick="applyColumnPreset('all')"
+            class="px-2.5 py-1 bg-white border border-slate-300 hover:border-blue-400 rounded-md font-semibold text-slate-700 transition">All
+            23 Fields</button>
+          <button onclick="applyColumnPreset('essential')"
+            class="px-2.5 py-1 bg-white border border-slate-300 hover:border-blue-400 rounded-md font-semibold text-slate-700 transition">Essential
+            Summary</button>
+          <button onclick="applyColumnPreset('financial')"
+            class="px-2.5 py-1 bg-white border border-slate-300 hover:border-blue-400 rounded-md font-semibold text-slate-700 transition">Financial
+            Focus</button>
+          <button onclick="applyColumnPreset('default')"
+            class="px-2.5 py-1 bg-white border border-slate-300 hover:border-blue-400 rounded-md font-semibold text-slate-700 transition">Default
+            Standard</button>
+        </div>
+
+        <!-- Categorized Checkboxes -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-[360px] overflow-y-auto pr-1"
+          id="columnCheckboxesContainer">
+          <!-- Populated dynamically -->
+        </div>
+
+        <div class="flex items-center justify-end pt-3 border-t border-slate-200">
+          <button onclick="closeColumnModal()"
+            class="px-5 py-2 text-xs font-bold rounded-lg bg-blue-600 hover:bg-blue-500 text-white transition">
+            Done
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL: DC SETTINGS (CUSTOMIZE 5 DISTRIBUTION CENTERS)    -->
+  <!-- ======================================================== -->
+  <div id="storeSettingsModal"
+    class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+    <div
+      class="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl border border-slate-200 animate-in fade-in zoom-in-95">
+      <div class="flex items-center justify-between pb-4 border-b border-slate-200">
+        <div>
+          <h3 class="text-base font-bold text-slate-900">Manage 5 Distribution Centers</h3>
+          <p class="text-xs text-slate-500">Edit DC Codes, Names, and Branch locations for the 5 dedicated pages</p>
+        </div>
+        <button onclick="closeStoreSettingsModal()"
+          class="text-slate-400 hover:text-slate-700 p-1.5 rounded-lg hover:bg-slate-100 transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <form onsubmit="saveStoreSettings(event)" class="mt-4 space-y-4">
+        <div id="storeSettingsList" class="space-y-3 max-h-[380px] overflow-y-auto pr-1">
+          <!-- Populated dynamically with the 5 DCs -->
+        </div>
+        <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-200">
+          <button type="button" onclick="closeStoreSettingsModal()"
+            class="px-4 py-2 text-xs font-semibold rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 transition">
+            Cancel
+          </button>
+          <button type="submit"
+            class="px-5 py-2 text-xs font-bold rounded-lg bg-blue-600 hover:bg-blue-500 text-white transition">
+            Save DC Configuration
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- NOTIFICATION TOAST -->
+  <div id="toast"
+    class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-slate-900 text-white text-xs px-4 py-3 rounded-xl shadow-2xl flex items-center gap-2.5 border border-slate-700/80">
+    <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+    <span id="toastMessage" class="font-medium">Action completed successfully.</span>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-400 no-print mt-auto">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
+      <span>StoreOps Pro &bull; 5 Distribution Centers Ticket & Maintenance System</span>
+      <span class="font-mono text-[11px] text-slate-500">All 23 Tracking Fields Supported &bull; Currency: ₱ (PHP)
+        &bull; PO/SI Optional</span>
+    </div>
+  </footer>
+
+  <!-- ======================================================== -->
+  <!-- CORE JAVASCRIPT APPLICATION LOGIC                        -->
+  <!-- ======================================================== -->
+  <script>
+    // -------------------------------------------------------------
+    // 1. DATA MODELS & INITIAL STATE
+    // -------------------------------------------------------------
+    const LS_STORES_KEY = "store_ops_dcs_v2";
+    const LS_TICKETS_KEY = "store_ops_tickets_v2";
+    const LS_COLS_KEY = "store_ops_cols_v2";
+    const LS_DENSITY_KEY = "store_ops_density_v2";
+
+    const ALL_FIELDS = [
+      { key: "status", label: "STATUS", group: "Status & Identifiers", defaultVisible: true },
+      { key: "po", label: "PO", group: "Status & Identifiers", defaultVisible: true },
+      { key: "ticketNumber", label: "Ticket number", group: "Status & Identifiers", defaultVisible: true },
+      { key: "siNumber", label: "SI. Number", group: "Status & Identifiers", defaultVisible: true },
+      { key: "vendor", label: "VENDOR", group: "Status & Identifiers", defaultVisible: true },
+
+      { key: "storeCode", label: "STORE CODE", group: "Store Information", defaultVisible: true },
+      { key: "storeName", label: "STORE NAME", group: "Store Information", defaultVisible: true },
+      { key: "branch", label: "BRANCH", group: "Store Information", defaultVisible: true },
+      { key: "month", label: "MONTH", group: "Store Information", defaultVisible: true },
+
+      { key: "dateIssued", label: "DATE ISSUED", group: "Timeline & Dates", defaultVisible: true },
+      { key: "dateReceived", label: "DATE RECEIVED", group: "Timeline & Dates", defaultVisible: false },
+      { key: "installedDate", label: "INSTALLED DATE", group: "Timeline & Dates", defaultVisible: false },
+
+      { key: "issue", label: "ISSUE", group: "Issue Details", defaultVisible: true },
+      { key: "actionTaken", label: "ACTION TAKEN", group: "Issue Details", defaultVisible: true },
+      { key: "description", label: "DESCRIPTION", group: "Issue Details", defaultVisible: true },
+      { key: "levelOfIssue", label: "LEVEL OF ISSUE", group: "Issue Details", defaultVisible: true },
+      { key: "categoryIssue", label: "CATEGORY ISSUE", group: "Issue Details", defaultVisible: true },
+      { key: "warranty", label: "WARRANTY", group: "Issue Details", defaultVisible: true },
+      { key: "remarks", label: "REMARKS", group: "Issue Details", defaultVisible: false },
+
+      { key: "mobilization", label: "MOBILIZATION (₱)", group: "Financials (₱)", defaultVisible: true },
+      { key: "serviceCharge", label: "SERVICE CHARGE (₱)", group: "Financials (₱)", defaultVisible: true },
+      { key: "amount", label: "AMOUNT (₱)", group: "Financials (₱)", defaultVisible: true },
+      { key: "totalAmount", label: "TOTAL AMOUNT (₱)", group: "Financials (₱)", defaultVisible: true }
+    ];
+
+    // The 5 Distribution Centers requested
+    const DEFAULT_STORES = [
+      { id: "store-1", code: "DC-SLG", name: "DC Silang", branch: "Silang, Cavite" },
+      { id: "store-2", code: "DC-CAL", name: "DC Calamba", branch: "Calamba, Laguna" },
+      { id: "store-3", code: "DC-SAR", name: "DC Sariaya", branch: "Sariaya, Quezon" },
+      { id: "store-4", code: "DC-MAR", name: "DC Marilao", branch: "Marilao, Bulacan" },
+      { id: "store-5", code: "DC-MEX", name: "DC Mexico", branch: "Mexico, Pampanga" }
+    ];
+
+    // Realistic tickets for the 5 Distribution Centers (PO and SI demonstrate optionality)
+    const SAMPLE_TICKETS = [
+      {
+        id: "tkt-001",
+        status: "In Progress",
+        po: "PO-2024-101",
+        ticketNumber: "TKT-1001",
+        siNumber: "SI-77041",
+        vendor: "Apex Tech Industrial Solutions",
+        storeCode: "DC-SLG",
+        storeName: "DC Silang",
+        branch: "Silang, Cavite",
+        dateIssued: "2024-10-02",
+        issue: "Bay 2 High-Speed Roller Shutter Door Sensor Fault",
+        actionTaken: "Dispatched technician; replaced optical alignment sensor and calibrated limit switch",
+        mobilization: 65.00,
+        serviceCharge: 120.00,
+        amount: 85.00,
+        totalAmount: 270.00,
+        description: "Primary outbound dispatch shutter door stuck midway during early morning truck loading.",
+        installedDate: "2023-04-15",
+        warranty: "Active (Under Warranty)",
+        remarks: "Tested 20 complete open/close cycles; operational sign-off obtained.",
+        dateReceived: "2024-10-02",
+        levelOfIssue: "Critical",
+        categoryIssue: "Electrical",
+        month: "October"
+      },
+      {
+        id: "tkt-002",
+        status: "Pending",
+        po: "", // Optional PO left blank
+        ticketNumber: "TKT-1002",
+        siNumber: "", // Optional SI left blank
+        vendor: "Arctic Cool Industrial HVAC",
+        storeCode: "DC-SLG",
+        storeName: "DC Silang",
+        branch: "Silang, Cavite",
+        dateIssued: "2024-10-03",
+        issue: "Cold Storage Zone #3 Temperature Fluctuation",
+        actionTaken: "Awaiting replacement fan motor assembly from regional parts warehouse",
+        mobilization: 80.00,
+        serviceCharge: 180.00,
+        amount: 320.00,
+        totalAmount: 580.00,
+        description: "Chiller sensor alarm triggered; evaporator coil icing due to airflow restriction.",
+        installedDate: "2022-09-10",
+        warranty: "Expired",
+        remarks: "Stock temporarily transferred to cold room reserve bay B.",
+        dateReceived: "2024-10-03",
+        levelOfIssue: "High",
+        categoryIssue: "HVAC / Cooling",
+        month: "October"
+      },
+      {
+        id: "tkt-003",
+        status: "Resolved",
+        po: "PO-2024-103",
+        ticketNumber: "TKT-1003",
+        siNumber: "SI-77112",
+        vendor: "Lumina Heavy Industries",
+        storeCode: "DC-CAL",
+        storeName: "DC Calamba",
+        branch: "Calamba, Laguna",
+        dateIssued: "2024-09-28",
+        issue: "High-Bay LED Warehouse Light Cluster Tripping",
+        actionTaken: "Replaced 2 faulty commercial surge suppressors and rebalanced circuit 4B",
+        mobilization: 50.00,
+        serviceCharge: 140.00,
+        amount: 45.00,
+        totalAmount: 235.00,
+        description: "Mezzanine picking section lights intermittently cutting off during shift change.",
+        installedDate: "2021-11-20",
+        warranty: "Extended Coverage",
+        remarks: "Illumination measured at standard 400 lux requirement.",
+        dateReceived: "2024-09-29",
+        levelOfIssue: "Medium",
+        categoryIssue: "Electrical",
+        month: "September"
+      },
+      {
+        id: "tkt-004",
+        status: "Closed",
+        po: "", // Optional
+        ticketNumber: "TKT-1004",
+        siNumber: "SI-77145",
+        vendor: "SwiftNet Enterprise Networking",
+        storeCode: "DC-CAL",
+        storeName: "DC Calamba",
+        branch: "Calamba, Laguna",
+        dateIssued: "2024-09-15",
+        issue: "Forklift RFID Scanner Gateway Packet Drop",
+        actionTaken: "Re-crimped industrial outdoor shielded patch cord and updated antenna firmware",
+        mobilization: 45.00,
+        serviceCharge: 95.00,
+        amount: 25.00,
+        totalAmount: 165.00,
+        description: "Vehicle-mounted rugged terminals losing connection between Aisle 12 and 18.",
+        installedDate: "2023-01-12",
+        warranty: "Active (Under Warranty)",
+        remarks: "Full signal heatmap verified; zero packet drops detected.",
+        dateReceived: "2024-09-16",
+        levelOfIssue: "Low",
+        categoryIssue: "Network / IT",
+        month: "September"
+      },
+      {
+        id: "tkt-005",
+        status: "In Progress",
+        po: "PO-2024-105",
+        ticketNumber: "TKT-1005",
+        siNumber: "", // Optional
+        vendor: "Vanguard Perimeter Security",
+        storeCode: "DC-SAR",
+        storeName: "DC Sariaya",
+        branch: "Sariaya, Quezon",
+        dateIssued: "2024-10-01",
+        issue: "Gate 1 Inbound ANPR License Plate Camera Blind Spot",
+        actionTaken: "Realignment of motorized PTZ camera arm and cleaning of IR housing glass",
+        mobilization: 60.00,
+        serviceCharge: 110.00,
+        amount: 65.00,
+        totalAmount: 235.00,
+        description: "Incoming delivery container trucks not logging automatic plate recognition.",
+        installedDate: "2022-06-30",
+        warranty: "Expired",
+        remarks: "Integration feed tested from command post.",
+        dateReceived: "2024-10-01",
+        levelOfIssue: "High",
+        categoryIssue: "Security / CCTV",
+        month: "October"
+      },
+      {
+        id: "tkt-006",
+        status: "Pending",
+        po: "", // Optional
+        ticketNumber: "TKT-1006",
+        siNumber: "", // Optional
+        vendor: "AquaFlow Commercial Facilities",
+        storeCode: "DC-SAR",
+        storeName: "DC Sariaya",
+        branch: "Sariaya, Quezon",
+        dateIssued: "2024-10-04",
+        issue: "Staff Locker Room Main Drainage Sump Overflow",
+        actionTaken: "Emergency suction pump deployed; contractor on-site for line clearing",
+        mobilization: 50.00,
+        serviceCharge: 85.00,
+        amount: 38.00,
+        totalAmount: 173.00,
+        description: "Backflow detected in floor drain line near facility lockers.",
+        installedDate: "2023-08-01",
+        warranty: "Not Covered / Void",
+        remarks: "Area cordoned off; health & safety protocol enacted.",
+        dateReceived: "2024-10-04",
+        levelOfIssue: "Medium",
+        categoryIssue: "Plumbing / Facility",
+        month: "October"
+      },
+      {
+        id: "tkt-007",
+        status: "Resolved",
+        po: "PO-2024-107",
+        ticketNumber: "TKT-1007",
+        siNumber: "SI-77260",
+        vendor: "Apex Tech Industrial Solutions",
+        storeCode: "DC-MAR",
+        storeName: "DC Marilao",
+        branch: "Marilao, Bulacan",
+        dateIssued: "2024-09-22",
+        issue: "Dispatch Manifest Barcode Printer Head Jam",
+        actionTaken: "Cleaned thermal platen roller, installed replacement 300dpi print head",
+        mobilization: 45.00,
+        serviceCharge: 75.00,
+        amount: 30.00,
+        totalAmount: 150.00,
+        description: "High-volume shipping label printer skipping lines on logistics manifests.",
+        installedDate: "2023-11-10",
+        warranty: "Active (Under Warranty)",
+        remarks: "100 test logistics labels printed without distortion.",
+        dateReceived: "2024-09-23",
+        levelOfIssue: "Medium",
+        categoryIssue: "POS / Hardware",
+        month: "September"
+      },
+      {
+        id: "tkt-008",
+        status: "On Hold",
+        po: "PO-2024-108",
+        ticketNumber: "TKT-1008",
+        siNumber: "SI-77299",
+        vendor: "Arctic Cool Industrial HVAC",
+        storeCode: "DC-MAR",
+        storeName: "DC Marilao",
+        branch: "Marilao, Bulacan",
+        dateIssued: "2024-10-04",
+        issue: "Walk-In Freezer Compressor High Discharge Pressure",
+        actionTaken: "System pressure relieved; awaiting manufacturer sign-off for expansion valve",
+        mobilization: 120.00,
+        serviceCharge: 350.00,
+        amount: 480.00,
+        totalAmount: 950.00,
+        description: "Bulk frozen distribution inventory at risk. Immediate technician dispatch executed.",
+        installedDate: "2021-05-19",
+        warranty: "Extended Coverage",
+        remarks: "Dry-ice reserve deployed in main pallet holding rack.",
+        dateReceived: "2024-10-04",
+        levelOfIssue: "Critical",
+        categoryIssue: "HVAC / Cooling",
+        month: "October"
+      },
+      {
+        id: "tkt-009",
+        status: "Closed",
+        po: "", // Optional
+        ticketNumber: "TKT-1009",
+        siNumber: "", // Optional
+        vendor: "Lumina Heavy Industries",
+        storeCode: "DC-MEX",
+        storeName: "DC Mexico",
+        branch: "Mexico, Pampanga",
+        dateIssued: "2024-08-30",
+        issue: "Emergency Evacuation Lighting Battery Backup Low",
+        actionTaken: "Replaced dual 12V 9Ah sealed lead-acid emergency battery packs",
+        mobilization: 55.00,
+        serviceCharge: 65.00,
+        amount: 42.00,
+        totalAmount: 162.00,
+        description: "Quarterly safety audit flagged unlit emergency route markers above Bay 8.",
+        installedDate: "2020-03-14",
+        warranty: "Expired",
+        remarks: "Fully compliant with BFP fire and safety inspection code.",
+        dateReceived: "2024-08-31",
+        levelOfIssue: "Low",
+        categoryIssue: "Electrical",
+        month: "August"
+      },
+      {
+        id: "tkt-010",
+        status: "In Progress",
+        po: "PO-2024-110",
+        ticketNumber: "TKT-1010",
+        siNumber: "SI-77382",
+        vendor: "SwiftNet Enterprise Networking",
+        storeCode: "DC-MEX",
+        storeName: "DC Mexico",
+        branch: "Mexico, Pampanga",
+        dateIssued: "2024-10-03",
+        issue: "Warehouse Management System (WMS) Terminal Disconnects",
+        actionTaken: "Replaced failed PoE core switch port and renewed IP leases",
+        mobilization: 40.00,
+        serviceCharge: 110.00,
+        amount: 0.00,
+        totalAmount: 150.00,
+        description: "Terminal stations in packing section losing connection to main server host.",
+        installedDate: "2024-02-01",
+        warranty: "Active (Under Warranty)",
+        remarks: "Network throughput steady at 1 Gbps continuous transmission.",
+        dateReceived: "2024-10-03",
+        levelOfIssue: "Low",
+        categoryIssue: "Network / IT",
+        month: "October"
+      }
+    ];
+
+    // State Variables
+    let stores = [];
+    let tickets = [];
+    let activeStoreId = "all";
+    let visibleColumns = {};
+    let sortField = "dateIssued";
+    let sortAsc = false;
+    let selectedTicketIds = new Set();
+    let currentPreset = "all";
+    let currentDetailTicketId = null;
+
+    // Pagination State
+    let currentPage = 1;
+    let pageSize = 25; // 10, 25, 50, 100, or "all"
+
+    // Table Density State
+    let isCompact = false;
+
+    // -------------------------------------------------------------
+    // 2. INITIALIZATION & STORAGE MIGRATION
+    // -------------------------------------------------------------
+    window.addEventListener("DOMContentLoaded", () => {
+      initData();
+      renderStoreTabs();
+      initKeyboardShortcuts();
+      applyFiltersAndRender();
+    });
+
+    function initData() {
+      // Load Stores with smooth migration to the 5 requested DCs
+      const savedStores = localStorage.getItem(LS_STORES_KEY);
+      if (savedStores) {
+        stores = JSON.parse(savedStores);
+        // Check if old stores exist (or not matching DC Silang, DC Calamba, etc.)
+        const hasDCSilang = stores.some(s => s.name === "DC Silang");
+        if (!hasDCSilang || stores.length !== 5) {
+          stores = [...DEFAULT_STORES];
+          localStorage.setItem(LS_STORES_KEY, JSON.stringify(stores));
+        }
+      } else {
+        stores = [...DEFAULT_STORES];
+      }
+
+      // Load Tickets with auto-migration of store references
+      const savedTickets = localStorage.getItem(LS_TICKETS_KEY);
+      if (savedTickets) {
+        tickets = JSON.parse(savedTickets);
+        // Check if any old store codes exist and map them to DCs
+        let changed = false;
+        const codeMap = {
+          "STR-001": { code: "DC-SLG", name: "DC Silang", branch: "Silang, Cavite" },
+          "STR-002": { code: "DC-CAL", name: "DC Calamba", branch: "Calamba, Laguna" },
+          "STR-003": { code: "DC-SAR", name: "DC Sariaya", branch: "Sariaya, Quezon" },
+          "STR-004": { code: "DC-MAR", name: "DC Marilao", branch: "Marilao, Bulacan" },
+          "STR-005": { code: "DC-MEX", name: "DC Mexico", branch: "Mexico, Pampanga" }
+        };
+        tickets.forEach(t => {
+          if (codeMap[t.storeCode]) {
+            t.storeCode = codeMap[t.storeCode].code;
+            t.storeName = codeMap[t.storeCode].name;
+            t.branch = codeMap[t.storeCode].branch;
+            changed = true;
+          }
+        });
+        if (changed) {
+          localStorage.setItem(LS_TICKETS_KEY, JSON.stringify(tickets));
+        }
+      } else {
+        tickets = [...SAMPLE_TICKETS];
+      }
+
+      // Load Columns
+      const savedCols = localStorage.getItem(LS_COLS_KEY);
+      if (savedCols) {
+        visibleColumns = JSON.parse(savedCols);
+      } else {
+        visibleColumns = {};
+        ALL_FIELDS.forEach(f => visibleColumns[f.key] = f.defaultVisible);
+      }
+
+      // Load Density
+      const savedDensity = localStorage.getItem(LS_DENSITY_KEY);
+      if (savedDensity === "compact") {
+        isCompact = true;
+        updateTableDensityClass();
+      }
+    }
+
+    function saveState() {
+      localStorage.setItem(LS_STORES_KEY, JSON.stringify(stores));
+      localStorage.setItem(LS_TICKETS_KEY, JSON.stringify(tickets));
+      localStorage.setItem(LS_COLS_KEY, JSON.stringify(visibleColumns));
+      localStorage.setItem(LS_DENSITY_KEY, isCompact ? "compact" : "comfortable");
+    }
+
+    // -------------------------------------------------------------
+    // 3. STORE NAVIGATION TABS (5 Dedicated DCs + Master All DCs)
+    // -------------------------------------------------------------
+    function renderStoreTabs() {
+      const container = document.getElementById("storeTabsContainer");
+      container.innerHTML = "";
+
+      // Master Tab: All 5 Distribution Centers
+      const allCount = tickets.length;
+      const isAllActive = activeStoreId === "all";
+      const allBtn = document.createElement("button");
+      allBtn.className = `flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap active:scale-95 ${isAllActive
+        ? "bg-slate-900 text-white shadow-sm ring-1 ring-slate-800"
+        : "bg-slate-100/90 hover:bg-slate-200/90 text-slate-700"
+        }`;
+      allBtn.innerHTML = `
+        <svg class="w-4 h-4 ${isAllActive ? 'text-cyan-400' : 'text-slate-500'}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+        <span>All 5 DCs (Consolidated)</span>
+        <span class="px-2 py-0.5 rounded-full text-[10px] font-mono ${isAllActive ? 'bg-slate-800 text-cyan-300' : 'bg-slate-200 text-slate-600'}">${allCount}</span>
+      `;
+      allBtn.onclick = () => switchStore("all");
+      container.appendChild(allBtn);
+
+      // The 5 Dedicated DC Pages: DC Silang, DC Calamba, DC Sariaya, DC Marilao, DC Mexico
+      stores.forEach((store, index) => {
+        const storeCount = tickets.filter(t => t.storeCode === store.code || t.storeName === store.name).length;
+        const isActive = activeStoreId === store.id;
+        const btn = document.createElement("button");
+        btn.className = `flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold transition whitespace-nowrap active:scale-95 ${isActive
+          ? "bg-blue-600 text-white shadow-sm shadow-blue-600/30 ring-1 ring-blue-700"
+          : "bg-slate-100/90 hover:bg-slate-200/90 text-slate-700"
+          }`;
+        btn.innerHTML = `
+          <span class="font-mono text-[10px] font-bold px-1.5 py-0.5 rounded ${isActive ? 'bg-blue-700 text-blue-100' : 'bg-slate-200 text-slate-700'}">${store.code}</span>
+          <span>${escapeHtml(store.name)}</span>
+          <span class="px-1.5 py-0.5 rounded-full text-[10px] font-mono ${isActive ? 'bg-blue-800 text-white' : 'bg-slate-200 text-slate-600'}">${storeCount}</span>
+        `;
+        btn.onclick = () => switchStore(store.id);
+        container.appendChild(btn);
+      });
+    }
+
+    function switchStore(storeId) {
+      activeStoreId = storeId;
+      currentPage = 1;
+      renderStoreTabs();
+      updateStoreHeader();
+      applyFiltersAndRender();
+    }
+
+    function updateStoreHeader() {
+      const badge = document.getElementById("activeStoreBadge");
+      const title = document.getElementById("activeStoreTitle");
+      const branch = document.getElementById("activeStoreBranch");
+      const subtitle = document.getElementById("activeStoreTicketCountText");
+
+      if (activeStoreId === "all") {
+        badge.textContent = "MASTER CONSOLIDATED";
+        badge.className = "px-2.5 py-1 text-xs font-bold rounded-lg bg-indigo-50 text-indigo-700 border border-indigo-200 font-mono tracking-wide shadow-xs";
+        title.textContent = "All 5 Distribution Centers (Consolidated View)";
+        branch.textContent = "Silang &bull; Calamba &bull; Sariaya &bull; Marilao &bull; Mexico";
+        subtitle.textContent = "Enterprise cross-DC aggregation, comparison & financial totals";
+      } else {
+        const store = stores.find(s => s.id === activeStoreId);
+        if (store) {
+          badge.textContent = store.code;
+          badge.className = "px-2.5 py-1 text-xs font-bold rounded-lg bg-blue-50 text-blue-700 border border-blue-200 font-mono tracking-wide shadow-xs";
+          title.textContent = `${store.name}`;
+          branch.textContent = store.branch;
+          subtitle.textContent = `Dedicated maintenance dashboard for ${store.name} (${store.code})`;
+        }
+      }
+    }
+
+    // -------------------------------------------------------------
+    // 4. SEARCH, FILTERING, SORTING & PAGINATION
+    // -------------------------------------------------------------
+    function handleSearchInput() {
+      const query = document.getElementById("searchInput").value;
+      const clearBtn = document.getElementById("searchClearBtn");
+      if (query.trim().length > 0) {
+        clearBtn.classList.remove("hidden");
+      } else {
+        clearBtn.classList.add("hidden");
+      }
+      currentPage = 1;
+      applyFiltersAndRender();
+    }
+
+    function clearSearchInput() {
+      document.getElementById("searchInput").value = "";
+      document.getElementById("searchClearBtn").classList.add("hidden");
+      currentPage = 1;
+      applyFiltersAndRender();
+    }
+
+    function setQuickPreset(preset) {
+      currentPreset = preset;
+      ["all", "attention", "critical", "resolved"].forEach(p => {
+        const btn = document.getElementById(`presetBtn_${p}`);
+        if (btn) {
+          if (p === preset) {
+            btn.className = "px-2.5 py-1 rounded-md font-semibold text-blue-700 bg-blue-50 border border-blue-200 transition";
+          } else {
+            btn.className = "px-2.5 py-1 rounded-md font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 transition";
+          }
+        }
+      });
+
+      if (preset === "all") {
+        document.getElementById("filterStatus").value = "";
+        document.getElementById("filterLevel").value = "";
+      } else if (preset === "attention") {
+        document.getElementById("filterStatus").value = "";
+        document.getElementById("filterLevel").value = "";
+      } else if (preset === "critical") {
+        document.getElementById("filterLevel").value = "Critical";
+        document.getElementById("filterStatus").value = "";
+      } else if (preset === "resolved") {
+        document.getElementById("filterStatus").value = "Resolved";
+        document.getElementById("filterLevel").value = "";
+      }
+
+      currentPage = 1;
+      applyFiltersAndRender();
+    }
+
+    function getFilteredTickets() {
+      let filtered = [...tickets];
+
+      // DC Page filter
+      if (activeStoreId !== "all") {
+        const cur = stores.find(s => s.id === activeStoreId);
+        if (cur) {
+          filtered = filtered.filter(t => t.storeCode === cur.code || t.storeName === cur.name);
+        }
+      }
+
+      // Quick Preset Logic
+      if (currentPreset === "attention") {
+        filtered = filtered.filter(t => t.status === "Pending" || t.status === "In Progress" || t.levelOfIssue === "Critical");
+      }
+
+      // Live Search Query
+      const query = (document.getElementById("searchInput").value || "").trim().toLowerCase();
+      if (query) {
+        filtered = filtered.filter(t => {
+          return Object.values(t).some(val => {
+            if (val === null || val === undefined) return false;
+            return String(val).toLowerCase().includes(query);
+          });
+        });
+      }
+
+      // Month filter
+      const monthFilter = document.getElementById("filterMonth").value;
+      if (monthFilter) filtered = filtered.filter(t => t.month === monthFilter);
+
+      // Status filter
+      const statusFilter = document.getElementById("filterStatus").value;
+      if (statusFilter) filtered = filtered.filter(t => t.status === statusFilter);
+
+      // Level filter
+      const levelFilter = document.getElementById("filterLevel").value;
+      if (levelFilter) filtered = filtered.filter(t => t.levelOfIssue === levelFilter);
+
+      // Category filter
+      const categoryFilter = document.getElementById("filterCategory").value;
+      if (categoryFilter) filtered = filtered.filter(t => t.categoryIssue === categoryFilter);
+
+      // Sort
+      filtered.sort((a, b) => {
+        let valA = a[sortField];
+        let valB = b[sortField];
+
+        if (typeof valA === "number" && typeof valB === "number") {
+          return sortAsc ? valA - valB : valB - valA;
+        }
+
+        valA = (valA || "").toString().toLowerCase();
+        valB = (valB || "").toString().toLowerCase();
+
+        if (valA < valB) return sortAsc ? -1 : 1;
+        if (valA > valB) return sortAsc ? 1 : -1;
+        return 0;
+      });
+
+      return filtered;
+    }
+
+    function applyFiltersAndRender() {
+      const filtered = getFilteredTickets();
+      renderKPIs(filtered);
+      renderFilterChips();
+      renderTable(filtered);
+    }
+
+    function renderFilterChips() {
+      const container = document.getElementById("activeFilterChips");
+      container.innerHTML = "";
+
+      const chips = [];
+      const query = (document.getElementById("searchInput").value || "").trim();
+      const month = document.getElementById("filterMonth").value;
+      const status = document.getElementById("filterStatus").value;
+      const level = document.getElementById("filterLevel").value;
+      const cat = document.getElementById("filterCategory").value;
+
+      if (query) chips.push({ label: `Search: "${query}"`, clear: clearSearchInput });
+      if (month) chips.push({ label: `Month: ${month}`, clear: () => { document.getElementById("filterMonth").value = ""; applyFiltersAndRender(); } });
+      if (status) chips.push({ label: `Status: ${status}`, clear: () => { document.getElementById("filterStatus").value = ""; applyFiltersAndRender(); } });
+      if (level) chips.push({ label: `Priority: ${level}`, clear: () => { document.getElementById("filterLevel").value = ""; applyFiltersAndRender(); } });
+      if (cat) chips.push({ label: `Category: ${cat}`, clear: () => { document.getElementById("filterCategory").value = ""; applyFiltersAndRender(); } });
+
+      if (chips.length > 0) {
+        chips.forEach(c => {
+          const chip = document.createElement("span");
+          chip.className = "inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-slate-200/90 text-slate-800";
+          chip.innerHTML = `${escapeHtml(c.label)} <button class="text-slate-500 hover:text-slate-900 font-bold ml-0.5">&times;</button>`;
+          chip.querySelector("button").onclick = c.clear;
+          container.appendChild(chip);
+        });
+
+        const resetBtn = document.createElement("button");
+        resetBtn.className = "text-[11px] text-blue-600 hover:underline font-semibold ml-1";
+        resetBtn.textContent = "Reset All";
+        resetBtn.onclick = resetAllFilters;
+        container.appendChild(resetBtn);
+      }
+    }
+
+    function resetAllFilters() {
+      document.getElementById("searchInput").value = "";
+      document.getElementById("searchClearBtn").classList.add("hidden");
+      document.getElementById("filterMonth").value = "";
+      document.getElementById("filterStatus").value = "";
+      document.getElementById("filterLevel").value = "";
+      document.getElementById("filterCategory").value = "";
+      currentPreset = "all";
+      setQuickPreset("all");
+    }
+
+    function renderKPIs(list) {
+      const totalTickets = list.length;
+      const pendingTickets = list.filter(t => t.status === "Pending" || t.status === "In Progress").length;
+      const criticalTickets = list.filter(t => t.levelOfIssue === "Critical").length;
+
+      const totalMobilization = list.reduce((acc, t) => acc + (parseFloat(t.mobilization) || 0), 0);
+      const totalServiceCharge = list.reduce((acc, t) => acc + (parseFloat(t.serviceCharge) || 0), 0);
+      const totalAmountParts = list.reduce((acc, t) => acc + (parseFloat(t.amount) || 0), 0);
+      const grandTotalAmount = list.reduce((acc, t) => acc + (parseFloat(t.totalAmount) || 0), 0);
+
+      document.getElementById("kpiTotalTickets").textContent = totalTickets;
+      document.getElementById("kpiPendingTickets").textContent = pendingTickets;
+      document.getElementById("kpiCriticalTickets").textContent = criticalTickets;
+      document.getElementById("kpiTotalAmount").textContent = formatCurrency(grandTotalAmount);
+
+      document.getElementById("kpiMobilization").textContent = formatCurrency(totalMobilization);
+      document.getElementById("kpiServiceCharge").textContent = formatCurrency(totalServiceCharge);
+      document.getElementById("kpiAmount").textContent = formatCurrency(totalAmountParts);
+    }
+
+    function renderTable(list) {
+      const tbody = document.getElementById("tableBody");
+      tbody.innerHTML = "";
+
+      updateTableHeaderVisibility();
+
+      if (list.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="26" class="py-16 text-center text-slate-400">
+              <div class="max-w-xs mx-auto space-y-3">
+                <div class="w-12 h-12 mx-auto rounded-full bg-slate-100 flex items-center justify-center text-slate-400">
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                </div>
+                <p class="font-bold text-slate-700 text-sm">No ticket records match</p>
+                <p class="text-xs text-slate-400">Try adjusting your search criteria, reset active filters, or create a new ticket.</p>
+                <button onclick="resetAllFilters()" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-blue-600 text-white hover:bg-blue-500 transition">
+                  Reset Active Filters
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+        renderPagination(0, 0, 0);
+        return;
+      }
+
+      // Pagination slice
+      const totalItems = list.length;
+      let effectivePageSize = pageSize === "all" ? totalItems : parseInt(pageSize, 10);
+      const totalPages = Math.ceil(totalItems / effectivePageSize) || 1;
+      if (currentPage > totalPages) currentPage = totalPages;
+
+      const startIndex = (currentPage - 1) * effectivePageSize;
+      const endIndex = Math.min(startIndex + effectivePageSize, totalItems);
+      const pagedList = list.slice(startIndex, endIndex);
+
+      renderPagination(startIndex, endIndex, totalItems);
+
+      pagedList.forEach(t => {
+        const tr = document.createElement("tr");
+        const isSelected = selectedTicketIds.has(t.id);
+        tr.className = `hover:bg-slate-50/80 transition-colors border-b border-slate-200/80 ${isSelected ? 'bg-blue-50/60' : ''}`;
+
+        // Sticky Left Checkbox
+        let html = `
+          <td class="p-3 text-center sticky left-0 ${isSelected ? 'bg-blue-50/90' : 'bg-white'} z-10 sticky-col-left">
+            <input type="checkbox" ${isSelected ? 'checked' : ''} onchange="toggleSelectTicket('${t.id}', this)" class="rounded text-blue-600 focus:ring-blue-500 cursor-pointer">
+          </td>
+        `;
+
+        // 1. STATUS
+        if (visibleColumns.status) {
+          html += `<td class="whitespace-nowrap">${getStatusBadge(t.status)}</td>`;
+        }
+
+        // 2. PO (Optional - graceful display)
+        if (visibleColumns.po) {
+          html += `<td class="font-mono text-slate-700 font-medium whitespace-nowrap">${t.po ? escapeHtml(t.po) : '<span class="text-slate-300 font-sans">—</span>'}</td>`;
+        }
+
+        // 3. Ticket number (Clickable to view, fully editable via modal)
+        if (visibleColumns.ticketNumber) {
+          html += `
+            <td class="whitespace-nowrap font-mono font-bold">
+              <button onclick="viewTicketDetail('${t.id}')" class="text-blue-600 hover:text-blue-800 hover:underline flex items-center gap-1" title="Click to view work order & edit">
+                ${escapeHtml(t.ticketNumber)}
+              </button>
+            </td>
+          `;
+        }
+
+        // 4. SI. Number (Optional - graceful display)
+        if (visibleColumns.siNumber) {
+          html += `<td class="font-mono text-slate-500 whitespace-nowrap">${t.siNumber ? escapeHtml(t.siNumber) : '<span class="text-slate-300 font-sans">—</span>'}</td>`;
+        }
+
+        // 5. VENDOR
+        if (visibleColumns.vendor) {
+          html += `<td class="font-medium text-slate-800 whitespace-nowrap">${escapeHtml(t.vendor || '-')}</td>`;
+        }
+
+        // 6. STORE CODE (DC Code)
+        if (visibleColumns.storeCode) {
+          html += `<td class="whitespace-nowrap"><span class="font-mono text-[11px] font-bold px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200">${escapeHtml(t.storeCode)}</span></td>`;
+        }
+
+        // 7. STORE NAME (DC Name)
+        if (visibleColumns.storeName) {
+          html += `<td class="font-semibold text-slate-800 whitespace-nowrap">${escapeHtml(t.storeName || '-')}</td>`;
+        }
+
+        // 8. BRANCH
+        if (visibleColumns.branch) {
+          html += `<td class="text-slate-600 whitespace-nowrap">${escapeHtml(t.branch || '-')}</td>`;
+        }
+
+        // 9. DATE ISSUED
+        if (visibleColumns.dateIssued) {
+          html += `<td class="font-mono text-slate-600 whitespace-nowrap">${escapeHtml(t.dateIssued || '-')}</td>`;
+        }
+
+        // 10. ISSUE
+        if (visibleColumns.issue) {
+          html += `<td class="font-semibold text-slate-900 max-w-xs truncate" title="${escapeHtml(t.issue || '')}">${escapeHtml(t.issue || '-')}</td>`;
+        }
+
+        // 11. ACTION TAKEN
+        if (visibleColumns.actionTaken) {
+          html += `<td class="text-slate-600 max-w-xs truncate" title="${escapeHtml(t.actionTaken || '')}">${escapeHtml(t.actionTaken || '-')}</td>`;
+        }
+
+        // 12. MOBILIZATION (₱)
+        if (visibleColumns.mobilization) {
+          html += `<td class="text-right font-mono text-slate-700 whitespace-nowrap">${formatCurrency(t.mobilization)}</td>`;
+        }
+
+        // 13. SERVICE CHARGE (₱)
+        if (visibleColumns.serviceCharge) {
+          html += `<td class="text-right font-mono text-slate-700 whitespace-nowrap">${formatCurrency(t.serviceCharge)}</td>`;
+        }
+
+        // 14. AMOUNT (₱)
+        if (visibleColumns.amount) {
+          html += `<td class="text-right font-mono text-slate-700 whitespace-nowrap">${formatCurrency(t.amount)}</td>`;
+        }
+
+        // 15. TOTAL AMOUNT (₱)
+        if (visibleColumns.totalAmount) {
+          html += `<td class="text-right font-mono font-bold text-blue-900 bg-blue-50/50 whitespace-nowrap">${formatCurrency(t.totalAmount)}</td>`;
+        }
+
+        // 16. DESCRIPTION
+        if (visibleColumns.description) {
+          html += `<td class="text-slate-500 max-w-xs truncate" title="${escapeHtml(t.description || '')}">${escapeHtml(t.description || '-')}</td>`;
+        }
+
+        // 17. INSTALLED DATE
+        if (visibleColumns.installedDate) {
+          html += `<td class="text-slate-600 whitespace-nowrap font-mono">${escapeHtml(t.installedDate || '-')}</td>`;
+        }
+
+        // 18. WARRANTY
+        if (visibleColumns.warranty) {
+          html += `<td class="whitespace-nowrap"><span class="px-2 py-0.5 rounded text-[11px] bg-slate-100 text-slate-700 border border-slate-200">${escapeHtml(t.warranty || '-')}</span></td>`;
+        }
+
+        // 19. REMARKS
+        if (visibleColumns.remarks) {
+          html += `<td class="text-slate-500 max-w-xs truncate" title="${escapeHtml(t.remarks || '')}">${escapeHtml(t.remarks || '-')}</td>`;
+        }
+
+        // 20. DATE RECEIVED
+        if (visibleColumns.dateReceived) {
+          html += `<td class="text-slate-600 whitespace-nowrap font-mono">${escapeHtml(t.dateReceived || '-')}</td>`;
+        }
+
+        // 21. LEVEL OF ISSUE
+        if (visibleColumns.levelOfIssue) {
+          html += `<td class="whitespace-nowrap">${getLevelBadge(t.levelOfIssue)}</td>`;
+        }
+
+        // 22. CATEGORY ISSUE
+        if (visibleColumns.categoryIssue) {
+          html += `<td class="whitespace-nowrap"><span class="px-2 py-0.5 rounded-md text-[11px] font-medium bg-slate-100 text-slate-700 border border-slate-200">${escapeHtml(t.categoryIssue)}</span></td>`;
+        }
+
+        // 23. MONTH
+        if (visibleColumns.month) {
+          html += `<td class="text-slate-700 font-semibold whitespace-nowrap">${escapeHtml(t.month)}</td>`;
+        }
+
+        // Sticky Actions Column (Sticky Right: View, Edit, Delete)
+        html += `
+          <td class="sticky right-0 ${isSelected ? 'bg-blue-50/90' : 'bg-white'} z-10 text-center whitespace-nowrap sticky-col-right">
+            <div class="flex items-center justify-center gap-1.5">
+              <button onclick="viewTicketDetail('${t.id}')" class="p-1.5 rounded-lg text-slate-500 hover:text-blue-600 hover:bg-blue-50 transition" title="View & Print Official Work Order">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+              </button>
+              <button onclick="editTicket('${t.id}')" class="p-1.5 rounded-lg text-slate-500 hover:text-amber-600 hover:bg-amber-50 transition" title="Edit Ticket Parameters">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+              </button>
+              <button onclick="deleteTicket('${t.id}')" class="p-1.5 rounded-lg text-slate-500 hover:text-rose-600 hover:bg-rose-50 transition" title="Delete Ticket">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+              </button>
+            </div>
+          </td>
+        `;
+
+        tr.innerHTML = html;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function updateTableHeaderVisibility() {
+      const headers = document.querySelectorAll("#tableHeaderRow th[data-col]");
+      headers.forEach(th => {
+        const colKey = th.getAttribute("data-col");
+        th.style.display = visibleColumns[colKey] ? "" : "none";
+
+        // Sort indicator
+        const sortIcon = th.querySelector(".sort-icon");
+        if (sortIcon) {
+          if (sortField === colKey) {
+            sortIcon.textContent = sortAsc ? " ▲" : " ▼";
+          } else {
+            sortIcon.textContent = "";
+          }
+        }
+      });
+    }
+
+    function sortBy(field) {
+      if (sortField === field) {
+        sortAsc = !sortAsc;
+      } else {
+        sortField = field;
+        sortAsc = true;
+      }
+      applyFiltersAndRender();
+    }
+
+    // -------------------------------------------------------------
+    // 5. PAGINATION & DENSITY CONTROLS
+    // -------------------------------------------------------------
+    function renderPagination(startIndex, endIndex, totalCount) {
+      document.getElementById("showingStartCount").textContent = totalCount === 0 ? 0 : startIndex + 1;
+      document.getElementById("showingEndCount").textContent = endIndex;
+      document.getElementById("filteredTotalCount").textContent = totalCount;
+
+      const indicator = document.getElementById("allTicketsIndicator");
+      if (totalCount !== tickets.length) {
+        indicator.textContent = `(filtered from ${tickets.length} total)`;
+      } else {
+        indicator.textContent = "";
+      }
+
+      const container = document.getElementById("paginationControls");
+      container.innerHTML = "";
+
+      if (pageSize === "all" || totalCount === 0) return;
+
+      const effectivePageSize = parseInt(pageSize, 10);
+      const totalPages = Math.ceil(totalCount / effectivePageSize);
+      if (totalPages <= 1) return;
+
+      // Prev Button
+      const prevBtn = document.createElement("button");
+      prevBtn.disabled = currentPage === 1;
+      prevBtn.className = `px-2 py-1 rounded-md border text-xs font-semibold ${currentPage === 1 ? 'border-slate-200 text-slate-300 cursor-not-allowed' : 'border-slate-300 bg-white hover:bg-slate-100 text-slate-700'
+        }`;
+      prevBtn.innerHTML = `&larr; Prev`;
+      prevBtn.onclick = () => { if (currentPage > 1) { currentPage--; applyFiltersAndRender(); } };
+      container.appendChild(prevBtn);
+
+      // Page numbers (Limit to reasonable range)
+      let startP = Math.max(1, currentPage - 2);
+      let endP = Math.min(totalPages, currentPage + 2);
+
+      for (let p = startP; p <= endP; p++) {
+        const pageBtn = document.createElement("button");
+        const isCurrent = p === currentPage;
+        pageBtn.className = `px-2.5 py-1 rounded-md text-xs font-bold transition ${isCurrent
+          ? 'bg-blue-600 text-white shadow-2xs'
+          : 'bg-white border border-slate-300 hover:bg-slate-100 text-slate-700'
+          }`;
+        pageBtn.textContent = p;
+        pageBtn.onclick = () => { currentPage = p; applyFiltersAndRender(); };
+        container.appendChild(pageBtn);
+      }
+
+      // Next Button
+      const nextBtn = document.createElement("button");
+      nextBtn.disabled = currentPage === totalPages;
+      nextBtn.className = `px-2 py-1 rounded-md border text-xs font-semibold ${currentPage === totalPages ? 'border-slate-200 text-slate-300 cursor-not-allowed' : 'border-slate-300 bg-white hover:bg-slate-100 text-slate-700'
+        }`;
+      nextBtn.innerHTML = `Next &rarr;`;
+      nextBtn.onclick = () => { if (currentPage < totalPages) { currentPage++; applyFiltersAndRender(); } };
+      container.appendChild(nextBtn);
+    }
+
+    function changePageSize(val) {
+      pageSize = val;
+      currentPage = 1;
+      applyFiltersAndRender();
+    }
+
+    function toggleTableDensity() {
+      isCompact = !isCompact;
+      updateTableDensityClass();
+      saveState();
+    }
+
+    function updateTableDensityClass() {
+      const table = document.getElementById("managementTable");
+      const label = document.getElementById("densityLabel");
+      if (isCompact) {
+        table.classList.remove("table-comfortable");
+        table.classList.add("table-compact");
+        label.textContent = "Comfortable";
+      } else {
+        table.classList.remove("table-compact");
+        table.classList.add("table-comfortable");
+        label.textContent = "Compact";
+      }
+    }
+
+    // -------------------------------------------------------------
+    // 6. COLUMN VISIBILITY MODAL & PRESETS
+    // -------------------------------------------------------------
+    function openColumnModal() {
+      renderColumnCheckboxes();
+      document.getElementById("columnModal").classList.remove("hidden");
+    }
+
+    function closeColumnModal() {
+      document.getElementById("columnModal").classList.add("hidden");
+    }
+
+    function renderColumnCheckboxes() {
+      const container = document.getElementById("columnCheckboxesContainer");
+      container.innerHTML = "";
+
+      // Group fields
+      const groups = {};
+      ALL_FIELDS.forEach(f => {
+        if (!groups[f.group]) groups[f.group] = [];
+        groups[f.group].push(f);
+      });
+
+      Object.keys(groups).forEach(groupName => {
+        const groupCard = document.createElement("div");
+        groupCard.className = "p-3 bg-slate-50/80 rounded-xl border border-slate-200/90 space-y-2";
+
+        const header = document.createElement("div");
+        header.className = "text-[11px] font-bold text-slate-500 uppercase tracking-wider";
+        header.textContent = groupName;
+        groupCard.appendChild(header);
+
+        const listDiv = document.createElement("div");
+        listDiv.className = "space-y-1.5 text-xs";
+
+        groups[groupName].forEach(f => {
+          const label = document.createElement("label");
+          label.className = "flex items-center gap-2 cursor-pointer text-slate-700 hover:text-slate-900";
+          label.innerHTML = `
+            <input type="checkbox" value="${f.key}" ${visibleColumns[f.key] ? "checked" : ""} onchange="onColumnToggle('${f.key}', this.checked)" class="rounded text-blue-600 focus:ring-blue-500 cursor-pointer">
+            <span class="font-medium">${f.label}</span>
+          `;
+          listDiv.appendChild(label);
+        });
+
+        groupCard.appendChild(listDiv);
+        container.appendChild(groupCard);
+      });
+    }
+
+    function onColumnToggle(key, isChecked) {
+      visibleColumns[key] = isChecked;
+      saveState();
+      applyFiltersAndRender();
+    }
+
+    function applyColumnPreset(preset) {
+      if (preset === "all") {
+        ALL_FIELDS.forEach(f => visibleColumns[f.key] = true);
+      } else if (preset === "essential") {
+        ALL_FIELDS.forEach(f => {
+          visibleColumns[f.key] = ["status", "ticketNumber", "vendor", "storeCode", "issue", "levelOfIssue", "totalAmount", "month"].includes(f.key);
+        });
+      } else if (preset === "financial") {
+        ALL_FIELDS.forEach(f => {
+          visibleColumns[f.key] = ["ticketNumber", "po", "siNumber", "vendor", "storeName", "mobilization", "serviceCharge", "amount", "totalAmount", "warranty", "month"].includes(f.key);
+        });
+      } else if (preset === "default") {
+        ALL_FIELDS.forEach(f => visibleColumns[f.key] = f.defaultVisible);
+      }
+
+      saveState();
+      renderColumnCheckboxes();
+      applyFiltersAndRender();
+      showToast(`Applied '${preset}' columns preset`);
+    }
+
+    // -------------------------------------------------------------
+    // 7. TICKET CRUD & LIVE FINANCIAL CALCULATOR (TICKET FULLY EDITABLE)
+    // -------------------------------------------------------------
+    function calculateTotalAmount() {
+      const mob = parseFloat(document.getElementById("modalMobilization").value) || 0;
+      const serv = parseFloat(document.getElementById("modalServiceCharge").value) || 0;
+      const amt = parseFloat(document.getElementById("modalAmount").value) || 0;
+      const total = mob + serv + amt;
+      document.getElementById("modalTotalAmount").value = total.toFixed(2);
+    }
+
+    function populateModalStoreDropdown() {
+      const select = document.getElementById("modalStoreCode");
+      select.innerHTML = "";
+      stores.forEach(s => {
+        const opt = document.createElement("option");
+        opt.value = s.code;
+        opt.textContent = `${s.code} - ${s.name}`;
+        select.appendChild(opt);
+      });
+    }
+
+    function syncStoreInfoFromModal() {
+      const code = document.getElementById("modalStoreCode").value;
+      const found = stores.find(s => s.code === code);
+      if (found) {
+        document.getElementById("modalStoreName").value = found.name;
+        document.getElementById("modalBranch").value = found.branch;
+      }
+    }
+
+    function openNewTicketModal() {
+      populateModalStoreDropdown();
+      document.getElementById("ticketForm").reset();
+      document.getElementById("editTicketId").value = "";
+      document.getElementById("modalTitle").textContent = "Create New Maintenance Ticket";
+
+      if (activeStoreId !== "all") {
+        const curStore = stores.find(s => s.id === activeStoreId);
+        if (curStore) {
+          document.getElementById("modalStoreCode").value = curStore.code;
+        }
+      }
+      syncStoreInfoFromModal();
+
+      // Editable Ticket Number defaults (can be changed to anything)
+      document.getElementById("modalTicketNumber").value = "TKT-" + (1000 + tickets.length + 1);
+
+      // PO and SI are strictly OPTIONAL - default to empty!
+      document.getElementById("modalPo").value = "";
+      document.getElementById("modalSiNumber").value = "";
+
+      document.getElementById("modalDateIssued").value = new Date().toISOString().split("T")[0];
+
+      const currentMonthName = new Date().toLocaleString('en-US', { month: 'long' });
+      document.getElementById("modalMonth").value = currentMonthName;
+
+      document.getElementById("modalMobilization").value = "0.00";
+      document.getElementById("modalServiceCharge").value = "0.00";
+      document.getElementById("modalAmount").value = "0.00";
+      calculateTotalAmount();
+
+      document.getElementById("ticketModal").classList.remove("hidden");
+    }
+
+    function editTicket(id) {
+      const ticket = tickets.find(t => t.id === id);
+      if (!ticket) return;
+
+      populateModalStoreDropdown();
+      document.getElementById("modalTitle").textContent = "Edit Ticket #" + ticket.ticketNumber;
+      document.getElementById("editTicketId").value = ticket.id;
+
+      document.getElementById("modalStoreCode").value = ticket.storeCode;
+      document.getElementById("modalStoreName").value = ticket.storeName;
+      document.getElementById("modalBranch").value = ticket.branch;
+      document.getElementById("modalMonth").value = ticket.month;
+
+      // Ticket number is freely editable
+      document.getElementById("modalTicketNumber").value = ticket.ticketNumber || "";
+
+      // PO and SI are optional
+      document.getElementById("modalPo").value = ticket.po || "";
+      document.getElementById("modalSiNumber").value = ticket.siNumber || "";
+
+      document.getElementById("modalVendor").value = ticket.vendor || "";
+
+      document.getElementById("modalStatus").value = ticket.status || "Pending";
+      document.getElementById("modalLevelOfIssue").value = ticket.levelOfIssue || "Low";
+      document.getElementById("modalCategoryIssue").value = ticket.categoryIssue || "POS / Hardware";
+      document.getElementById("modalDateIssued").value = ticket.dateIssued || "";
+      document.getElementById("modalDateReceived").value = ticket.dateReceived || "";
+      document.getElementById("modalInstalledDate").value = ticket.installedDate || "";
+
+      document.getElementById("modalMobilization").value = parseFloat(ticket.mobilization || 0).toFixed(2);
+      document.getElementById("modalServiceCharge").value = parseFloat(ticket.serviceCharge || 0).toFixed(2);
+      document.getElementById("modalAmount").value = parseFloat(ticket.amount || 0).toFixed(2);
+      document.getElementById("modalTotalAmount").value = parseFloat(ticket.totalAmount || 0).toFixed(2);
+
+      document.getElementById("modalIssue").value = ticket.issue || "";
+      document.getElementById("modalWarranty").value = ticket.warranty || "Active (Under Warranty)";
+      document.getElementById("modalDescription").value = ticket.description || "";
+      document.getElementById("modalActionTaken").value = ticket.actionTaken || "";
+      document.getElementById("modalRemarks").value = ticket.remarks || "";
+
+      document.getElementById("ticketModal").classList.remove("hidden");
+    }
+
+    function saveTicket(e) {
+      e.preventDefault();
+      const editId = document.getElementById("editTicketId").value;
+
+      const mob = parseFloat(document.getElementById("modalMobilization").value) || 0;
+      const serv = parseFloat(document.getElementById("modalServiceCharge").value) || 0;
+      const amt = parseFloat(document.getElementById("modalAmount").value) || 0;
+      const total = mob + serv + amt;
+
+      const tktNum = document.getElementById("modalTicketNumber").value.trim() || ("TKT-" + Date.now());
+
+      const ticketData = {
+        id: editId || ("tkt-" + Date.now()),
+        status: document.getElementById("modalStatus").value,
+        po: document.getElementById("modalPo").value.trim(), // Optional
+        ticketNumber: tktNum, // Editable ticket number
+        siNumber: document.getElementById("modalSiNumber").value.trim(), // Optional
+        vendor: document.getElementById("modalVendor").value.trim(),
+        storeCode: document.getElementById("modalStoreCode").value,
+        storeName: document.getElementById("modalStoreName").value,
+        branch: document.getElementById("modalBranch").value.trim(),
+        dateIssued: document.getElementById("modalDateIssued").value,
+        issue: document.getElementById("modalIssue").value.trim(),
+        actionTaken: document.getElementById("modalActionTaken").value.trim(),
+        mobilization: mob,
+        serviceCharge: serv,
+        amount: amt,
+        totalAmount: total,
+        description: document.getElementById("modalDescription").value.trim(),
+        installedDate: document.getElementById("modalInstalledDate").value,
+        warranty: document.getElementById("modalWarranty").value,
+        remarks: document.getElementById("modalRemarks").value.trim(),
+        dateReceived: document.getElementById("modalDateReceived").value,
+        levelOfIssue: document.getElementById("modalLevelOfIssue").value,
+        categoryIssue: document.getElementById("modalCategoryIssue").value,
+        month: document.getElementById("modalMonth").value
+      };
+
+      if (editId) {
+        const index = tickets.findIndex(t => t.id === editId);
+        if (index !== -1) tickets[index] = ticketData;
+        showToast(`Ticket ${tktNum} updated successfully!`);
+      } else {
+        tickets.unshift(ticketData);
+        showToast(`Ticket ${tktNum} created successfully!`);
+      }
+
+      saveState();
+      closeTicketModal();
+      renderStoreTabs();
+      applyFiltersAndRender();
+    }
+
+    function closeTicketModal() {
+      document.getElementById("ticketModal").classList.add("hidden");
+    }
+
+    function deleteTicket(id) {
+      if (confirm("Are you sure you want to permanently delete this ticket record?")) {
+        tickets = tickets.filter(t => t.id !== id);
+        selectedTicketIds.delete(id);
+        saveState();
+        renderStoreTabs();
+        applyFiltersAndRender();
+        showToast("Ticket deleted.");
+      }
+    }
+
+    // -------------------------------------------------------------
+    // 8. OFFICIAL PRINTABLE WORK ORDER SHEET & QUICK EDIT
+    // -------------------------------------------------------------
+    function viewTicketDetail(id) {
+      currentDetailTicketId = id;
+      const t = tickets.find(ticket => ticket.id === id);
+      if (!t) return;
+
+      const container = document.getElementById("detailContentContainer");
+      container.innerHTML = `
+        <div class="border border-slate-300 rounded-xl p-6 bg-white space-y-6">
+          
+          <!-- Document Header -->
+          <div class="flex justify-between items-start border-b border-slate-200 pb-4">
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-mono font-bold px-2 py-0.5 rounded bg-blue-100 text-blue-900 border border-blue-200">
+                  OFFICIAL WORK ORDER
+                </span>
+                <span class="text-xs font-mono text-slate-500 font-semibold">StoreOps Pro &bull; Distribution Center</span>
+              </div>
+              <h2 class="text-xl font-extrabold text-slate-900 mt-1">${escapeHtml(t.issue)}</h2>
+              <div class="text-xs text-slate-600 mt-1 flex flex-wrap items-center gap-3">
+                <span>Ticket #: <strong class="text-blue-700 font-mono text-sm">${escapeHtml(t.ticketNumber)}</strong></span>
+                <span>•</span>
+                <span>PO #: <strong class="text-slate-800 font-mono">${t.po ? escapeHtml(t.po) : '<span class="text-slate-400 font-normal italic">None</span>'}</strong></span>
+                <span>•</span>
+                <span>SI #: <strong class="text-slate-800 font-mono">${t.siNumber ? escapeHtml(t.siNumber) : '<span class="text-slate-400 font-normal italic">None</span>'}</strong></span>
+              </div>
+            </div>
+            <div class="text-right">
+              <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">Status</div>
+              <div class="mt-1">${getStatusBadge(t.status)}</div>
+              <div class="mt-2 text-xs font-mono text-slate-500">${escapeHtml(t.month)} Term</div>
+            </div>
+          </div>
+
+          <!-- Store & Vendor Info Grid -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 p-4 bg-slate-50 rounded-xl border border-slate-200">
+            <div>
+              <span class="text-[11px] font-bold text-slate-400 uppercase">DC Code & Name</span>
+              <p class="font-bold text-slate-900 mt-0.5">${escapeHtml(t.storeCode)} - ${escapeHtml(t.storeName)}</p>
+            </div>
+            <div>
+              <span class="text-[11px] font-bold text-slate-400 uppercase">Branch Location</span>
+              <p class="font-semibold text-slate-800 mt-0.5">${escapeHtml(t.branch)}</p>
+            </div>
+            <div>
+              <span class="text-[11px] font-bold text-slate-400 uppercase">Assigned Vendor</span>
+              <p class="font-semibold text-slate-800 mt-0.5">${escapeHtml(t.vendor)}</p>
+            </div>
+            <div>
+              <span class="text-[11px] font-bold text-slate-400 uppercase">Category</span>
+              <p class="font-semibold text-slate-800 mt-0.5">${escapeHtml(t.categoryIssue)}</p>
+            </div>
+          </div>
+
+          <!-- Timelines & Priority -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div>
+              <span class="text-[11px] font-bold text-slate-400 uppercase">Date Issued</span>
+              <p class="font-mono text-slate-800 font-medium mt-0.5">${escapeHtml(t.dateIssued || "-")}</p>
+            </div>
+            <div>
+              <span class="text-[11px] font-bold text-slate-400 uppercase">Date Received</span>
+              <p class="font-mono text-slate-800 font-medium mt-0.5">${escapeHtml(t.dateReceived || "-")}</p>
+            </div>
+            <div>
+              <span class="text-[11px] font-bold text-slate-400 uppercase">Priority Level</span>
+              <p class="mt-0.5">${getLevelBadge(t.levelOfIssue)}</p>
+            </div>
+            <div>
+              <span class="text-[11px] font-bold text-slate-400 uppercase">Warranty Status</span>
+              <p class="font-semibold text-slate-800 mt-0.5">${escapeHtml(t.warranty || "N/A")}</p>
+            </div>
+          </div>
+
+          <!-- Description & Actions -->
+          <div class="space-y-3">
+            <div>
+              <span class="text-[11px] font-bold text-slate-400 uppercase">Issue Description</span>
+              <div class="mt-1 p-3 bg-slate-50 rounded-lg text-slate-700 border border-slate-200">${escapeHtml(t.description || "No full description recorded.")}</div>
+            </div>
+            <div>
+              <span class="text-[11px] font-bold text-slate-400 uppercase">Corrective Action Taken</span>
+              <div class="mt-1 p-3 bg-slate-50 rounded-lg text-slate-700 border border-slate-200">${escapeHtml(t.actionTaken || "Awaiting action report.")}</div>
+            </div>
+          </div>
+
+          <!-- Financial Statement Table (Philippine Peso ₱) -->
+          <div class="border border-slate-200 rounded-xl overflow-hidden">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-100 font-bold text-slate-700">
+                <tr>
+                  <th class="p-3">Cost Item & Description</th>
+                  <th class="p-3 text-right">Amount (₱)</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-200 text-slate-700 font-mono">
+                <tr>
+                  <td class="p-3">1. Mobilization (Travel & Transportation Fee)</td>
+                  <td class="p-3 text-right">${formatCurrency(t.mobilization)}</td>
+                </tr>
+                <tr>
+                  <td class="p-3">2. Service Charge (Diagnostic & Skilled Labor Fee)</td>
+                  <td class="p-3 text-right">${formatCurrency(t.serviceCharge)}</td>
+                </tr>
+                <tr>
+                  <td class="p-3">3. Parts & Hardware Replacement (Materials / Goods)</td>
+                  <td class="p-3 text-right">${formatCurrency(t.amount)}</td>
+                </tr>
+                <tr class="bg-blue-50/80 font-bold text-blue-950 text-sm">
+                  <td class="p-3">TOTAL AMOUNT (PHP)</td>
+                  <td class="p-3 text-right font-extrabold text-blue-900">${formatCurrency(t.totalAmount)}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Remarks -->
+          <div>
+            <span class="text-[11px] font-bold text-slate-400 uppercase">Remarks & Notes</span>
+            <p class="text-slate-600 italic mt-0.5">${escapeHtml(t.remarks || "No additional remarks.")}</p>
+          </div>
+
+          <!-- Signatures Section -->
+          <div class="pt-6 grid grid-cols-2 gap-8 border-t border-slate-200 text-center">
+            <div>
+              <div class="border-b border-slate-400 pb-12"></div>
+              <p class="text-[11px] font-bold text-slate-700 uppercase mt-2">DC Operations Manager Signature & Date</p>
+            </div>
+            <div>
+              <div class="border-b border-slate-400 pb-12"></div>
+              <p class="text-[11px] font-bold text-slate-700 uppercase mt-2">Service Vendor Lead Signature & Date</p>
+            </div>
+          </div>
+        </div>
+      `;
+
+      document.getElementById("viewDetailModal").classList.remove("hidden");
+    }
+
+    function editCurrentDetailTicket() {
+      if (currentDetailTicketId) {
+        closeDetailModal();
+        editTicket(currentDetailTicketId);
+      }
+    }
+
+    function closeDetailModal() {
+      document.getElementById("viewDetailModal").classList.add("hidden");
+      currentDetailTicketId = null;
+    }
+
+    // -------------------------------------------------------------
+    // 9. DISTRIBUTION CENTER SETTINGS MODAL
+    // -------------------------------------------------------------
+    function openStoreSettingsModal() {
+      const container = document.getElementById("storeSettingsList");
+      container.innerHTML = "";
+
+      stores.forEach((s, idx) => {
+        const div = document.createElement("div");
+        div.className = "p-3.5 bg-slate-50 border border-slate-200 rounded-xl space-y-2.5";
+        div.innerHTML = `
+          <div class="font-bold text-xs text-blue-700 flex justify-between items-center">
+            <span>DC Page #${idx + 1}</span>
+            <span class="text-slate-400 font-mono text-[11px]">${s.id}</span>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs">
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">DC Code</label>
+              <input type="text" id="store_code_${s.id}" value="${escapeHtml(s.code)}" required class="w-full bg-white border border-slate-300 rounded-lg p-2 font-mono text-xs font-bold text-slate-800">
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">DC Name</label>
+              <input type="text" id="store_name_${s.id}" value="${escapeHtml(s.name)}" required class="w-full bg-white border border-slate-300 rounded-lg p-2 text-xs font-semibold text-slate-800">
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">Branch Location</label>
+              <input type="text" id="store_branch_${s.id}" value="${escapeHtml(s.branch)}" required class="w-full bg-white border border-slate-300 rounded-lg p-2 text-xs font-medium text-slate-800">
+            </div>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+
+      document.getElementById("storeSettingsModal").classList.remove("hidden");
+    }
+
+    function closeStoreSettingsModal() {
+      document.getElementById("storeSettingsModal").classList.add("hidden");
+    }
+
+    function saveStoreSettings(e) {
+      e.preventDefault();
+      stores.forEach(s => {
+        s.code = document.getElementById(`store_code_${s.id}`).value.trim();
+        s.name = document.getElementById(`store_name_${s.id}`).value.trim();
+        s.branch = document.getElementById(`store_branch_${s.id}`).value.trim();
+      });
+
+      saveState();
+      closeStoreSettingsModal();
+      renderStoreTabs();
+      updateStoreHeader();
+      applyFiltersAndRender();
+      showToast("Distribution Center configurations updated!");
+    }
+
+    // -------------------------------------------------------------
+    // 10. BATCH OPERATIONS
+    // -------------------------------------------------------------
+    function toggleSelectAll(masterCb) {
+      const filtered = getFilteredTickets();
+      if (masterCb.checked) {
+        filtered.forEach(t => selectedTicketIds.add(t.id));
+      } else {
+        selectedTicketIds.clear();
+      }
+      updateBatchBar();
+      applyFiltersAndRender();
+    }
+
+    function toggleSelectTicket(id, cb) {
+      if (cb.checked) {
+        selectedTicketIds.add(id);
+      } else {
+        selectedTicketIds.delete(id);
+      }
+      updateBatchBar();
+      applyFiltersAndRender();
+    }
+
+    function clearSelection() {
+      selectedTicketIds.clear();
+      updateBatchBar();
+      applyFiltersAndRender();
+    }
+
+    function updateBatchBar() {
+      const bar = document.getElementById("batchActionBar");
+      const countText = document.getElementById("selectedCountText");
+      if (selectedTicketIds.size > 0) {
+        bar.classList.remove("hidden");
+        countText.textContent = `${selectedTicketIds.size} ticket(s) selected`;
+      } else {
+        bar.classList.add("hidden");
+        const masterCb = document.getElementById("selectAllCheckbox");
+        if (masterCb) masterCb.checked = false;
+      }
+    }
+
+    function batchSetStatus(newStatus) {
+      tickets.forEach(t => {
+        if (selectedTicketIds.has(t.id)) {
+          t.status = newStatus;
+        }
+      });
+      selectedTicketIds.clear();
+      saveState();
+      updateBatchBar();
+      applyFiltersAndRender();
+      showToast(`Updated tickets to ${newStatus}`);
+    }
+
+    function batchDelete() {
+      if (confirm(`Permanently delete ${selectedTicketIds.size} selected ticket(s)?`)) {
+        tickets = tickets.filter(t => !selectedTicketIds.has(t.id));
+        selectedTicketIds.clear();
+        saveState();
+        updateBatchBar();
+        renderStoreTabs();
+        applyFiltersAndRender();
+        showToast("Selected tickets deleted.");
+      }
+    }
+
+    // -------------------------------------------------------------
+    // 11. CSV EXPORT & IMPORT (ALL 23 REQUIRED FIELDS)
+    // -------------------------------------------------------------
+    function exportToCsv() {
+      const filtered = getFilteredTickets();
+      if (filtered.length === 0) {
+        alert("No records to export.");
+        return;
+      }
+
+      const headers = [
+        "STATUS", "PO", "Ticket number", "SI. Number", "VENDOR",
+        "STORE CODE", "STORE NAME", "BRANCH", "DATE ISSUED", "ISSUE",
+        "ACTION TAKEN", "MOBILIZATION", "SERVICE CHARGE", "AMOUNT", "TOTAL AMOUNT",
+        "DESCRIPTION", "INSTALLED DATE", "WARRANTY", "REMARKS", "DATE RECEIVED",
+        "LEVEL OF ISSUE", "CATEGORY ISSUE", "MONTH"
+      ];
+
+      const rows = filtered.map(t => [
+        `"${(t.status || '').replace(/"/g, '""')}"`,
+        `"${(t.po || '').replace(/"/g, '""')}"`,
+        `"${(t.ticketNumber || '').replace(/"/g, '""')}"`,
+        `"${(t.siNumber || '').replace(/"/g, '""')}"`,
+        `"${(t.vendor || '').replace(/"/g, '""')}"`,
+        `"${(t.storeCode || '').replace(/"/g, '""')}"`,
+        `"${(t.storeName || '').replace(/"/g, '""')}"`,
+        `"${(t.branch || '').replace(/"/g, '""')}"`,
+        `"${(t.dateIssued || '').replace(/"/g, '""')}"`,
+        `"${(t.issue || '').replace(/"/g, '""')}"`,
+        `"${(t.actionTaken || '').replace(/"/g, '""')}"`,
+        (parseFloat(t.mobilization) || 0).toFixed(2),
+        (parseFloat(t.serviceCharge) || 0).toFixed(2),
+        (parseFloat(t.amount) || 0).toFixed(2),
+        (parseFloat(t.totalAmount) || 0).toFixed(2),
+        `"${(t.description || '').replace(/"/g, '""')}"`,
+        `"${(t.installedDate || '').replace(/"/g, '""')}"`,
+        `"${(t.warranty || '').replace(/"/g, '""')}"`,
+        `"${(t.remarks || '').replace(/"/g, '""')}"`,
+        `"${(t.dateReceived || '').replace(/"/g, '""')}"`,
+        `"${(t.levelOfIssue || '').replace(/"/g, '""')}"`,
+        `"${(t.categoryIssue || '').replace(/"/g, '""')}"`,
+        `"${(t.month || '').replace(/"/g, '""')}"`
+      ]);
+
+      const csvContent = [headers.join(","), ...rows.map(r => r.join(","))].join("\r\n");
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      const filename = `DCOps_${activeStoreId}_${new Date().toISOString().slice(0, 10)}.csv`;
+      link.setAttribute("href", url);
+      link.setAttribute("download", filename);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      showToast("CSV file exported successfully!");
+    }
+
+    function importCsv(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const text = e.target.result;
+        parseAndLoadCsv(text);
+      };
+      reader.readAsText(file);
+      event.target.value = "";
+    }
+
+    function parseAndLoadCsv(csvText) {
+      const lines = csvText.split(/\r?\n/).filter(line => line.trim() !== "");
+      if (lines.length < 2) {
+        alert("The CSV file is empty or missing data rows.");
+        return;
+      }
+
+      function parseCsvLine(line) {
+        const pattern = /(?:,|\n|^)("(?:(?:"")*[^"]*)*"|[^",\n]*|(?:\n|$))/g;
+        const matches = [];
+        let match;
+        while ((match = pattern.exec(line)) !== null) {
+          if (match.index === pattern.lastIndex) pattern.lastIndex++;
+          let val = match[1] || "";
+          if (val.startsWith('"') && val.endsWith('"')) {
+            val = val.substring(1, val.length - 1).replace(/""/g, '"');
+          }
+          matches.push(val.trim());
+          if (pattern.lastIndex >= line.length) break;
+        }
+        return matches;
+      }
+
+      let importedCount = 0;
+      for (let i = 1; i < lines.length; i++) {
+        const cols = parseCsvLine(lines[i]);
+        if (cols.length >= 10) {
+          const mob = parseFloat(cols[11]) || 0;
+          const serv = parseFloat(cols[12]) || 0;
+          const amt = parseFloat(cols[13]) || 0;
+          const tot = (parseFloat(cols[14]) || (mob + serv + amt));
+
+          const newTicket = {
+            id: "csv-" + Date.now() + "-" + i,
+            status: cols[0] || "Pending",
+            po: cols[1] || "", // Optional
+            ticketNumber: cols[2] || "TKT-" + (2000 + i),
+            siNumber: cols[3] || "", // Optional
+            vendor: cols[4] || "Vendor",
+            storeCode: cols[5] || "DC-SLG",
+            storeName: cols[6] || "DC Silang",
+            branch: cols[7] || "Silang, Cavite",
+            dateIssued: cols[8] || new Date().toISOString().split("T")[0],
+            issue: cols[9] || "Maintenance Issue",
+            actionTaken: cols[10] || "",
+            mobilization: mob,
+            serviceCharge: serv,
+            amount: amt,
+            totalAmount: tot,
+            description: cols[15] || "",
+            installedDate: cols[16] || "",
+            warranty: cols[17] || "Under Warranty",
+            remarks: cols[18] || "",
+            dateReceived: cols[19] || "",
+            levelOfIssue: cols[20] || "Medium",
+            categoryIssue: cols[21] || "POS / Hardware",
+            month: cols[22] || "October"
+          };
+          tickets.push(newTicket);
+          importedCount++;
+        }
+      }
+
+      saveState();
+      renderStoreTabs();
+      applyFiltersAndRender();
+      showToast(`Successfully imported ${importedCount} tickets from CSV!`);
+    }
+
+    // -------------------------------------------------------------
+    // 12. HELPERS & FORMATTING
+    // -------------------------------------------------------------
+    function restoreSampleData() {
+      if (confirm("Reset tickets to the realistic 10-record dataset across the 5 Distribution Centers?")) {
+        tickets = [...SAMPLE_TICKETS];
+        stores = [...DEFAULT_STORES];
+        saveState();
+        renderStoreTabs();
+        updateStoreHeader();
+        applyFiltersAndRender();
+        showToast("Restored sample ticket records for the 5 DCs!");
+      }
+    }
+
+    function clearAllData() {
+      if (confirm("Are you sure you want to permanently delete ALL tickets?")) {
+        tickets = [];
+        selectedTicketIds.clear();
+        saveState();
+        renderStoreTabs();
+        applyFiltersAndRender();
+        showToast("All records cleared.");
+      }
+    }
+
+    function getStatusBadge(status) {
+      const s = (status || "").toLowerCase().replace(/\s+/g, '');
+      let cls = "badge-pending";
+      let dotColor = "bg-amber-500";
+
+      if (s === "inprogress") { cls = "badge-inprogress"; dotColor = "bg-blue-500"; }
+      else if (s === "resolved") { cls = "badge-resolved"; dotColor = "bg-emerald-500"; }
+      else if (s === "closed") { cls = "badge-closed"; dotColor = "bg-slate-400"; }
+      else if (s === "onhold") { cls = "badge-onhold"; dotColor = "bg-purple-500"; }
+
+      return `
+        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${cls}">
+          <span class="w-1.5 h-1.5 rounded-full ${dotColor}"></span>
+          ${escapeHtml(status || 'Pending')}
+        </span>
+      `;
+    }
+
+    function getLevelBadge(level) {
+      const l = (level || "").toLowerCase();
+      let cls = "badge-low";
+      if (l === "critical") cls = "badge-critical font-extrabold";
+      else if (l === "high") cls = "badge-high";
+      else if (l === "medium") cls = "badge-medium";
+      return `<span class="px-2 py-0.5 rounded-md text-[11px] font-bold ${cls}">${escapeHtml(level || 'Low')}</span>`;
+    }
+
+    function formatCurrency(num) {
+      const val = parseFloat(num) || 0;
+      return "₱" + val.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function escapeHtml(str) {
+      if (!str) return "";
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById("toast");
+      document.getElementById("toastMessage").textContent = msg;
+      toast.classList.remove("translate-y-20", "opacity-0");
+      setTimeout(() => {
+        toast.classList.add("translate-y-20", "opacity-0");
+      }, 3000);
+    }
+
+    function initKeyboardShortcuts() {
+      window.addEventListener("keydown", (e) => {
+        // Esc closes open modals
+        if (e.key === "Escape") {
+          closeTicketModal();
+          closeDetailModal();
+          closeColumnModal();
+          closeStoreSettingsModal();
+        }
+        // '/' focuses search input if not inside form input
+        if (e.key === "/" && !["INPUT", "TEXTAREA", "SELECT"].includes(document.activeElement.tagName)) {
+          e.preventDefault();
+          const searchInput = document.getElementById("searchInput");
+          if (searchInput) {
+            searchInput.focus();
+            searchInput.select();
+          }
+        }
+      });
+    }
+  </script>
+</body>
+
+</html>
